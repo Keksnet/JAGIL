@@ -27,31 +27,31 @@ public class FunctionalGui extends GUI {
     private final Consumer<GUI> close;
     private final Function<GUI, Boolean> defaultCancel;
 
-    protected FunctionalGui(String xmlFile, Consumer<GUI> fillMethod, Function<GUI, Boolean> handleMethod,
+    protected FunctionalGui(String guiFile, Consumer<GUI> fillMethod, Function<GUI, Boolean> handleMethod,
                             Consumer<GUI> handleLastMethod, Function<GUI, Boolean> handleDragMethod,
                             Consumer<GUI> handleDragLastMethod, Consumer<GUI> handleCloseMethod,
                             Function<GUI, Boolean> cancelDefault, Consumer<GUI> customConstructorCallback)
             throws XMLStreamException, IOException {
-        this(Paths.get(xmlFile), fillMethod, handleMethod, handleLastMethod, handleDragMethod, handleDragLastMethod,
+        this(Paths.get(guiFile), fillMethod, handleMethod, handleLastMethod, handleDragMethod, handleDragLastMethod,
                 handleCloseMethod, cancelDefault, customConstructorCallback);
     }
 
-    protected FunctionalGui(String xmlFile, OfflinePlayer p, Consumer<GUI> fillMethod,
+    protected FunctionalGui(String guiFile, OfflinePlayer p, Consumer<GUI> fillMethod,
                             Function<GUI, Boolean> handleMethod, Consumer<GUI> handleLastMethod,
                             Function<GUI, Boolean> handleDragMethod, Consumer<GUI> handleDragLastMethod,
                             Consumer<GUI> handleCloseMethod, Function<GUI, Boolean> cancelDefault,
                             Consumer<GUI> customConstructorCallback)
             throws XMLStreamException, IOException {
-        this(Paths.get(xmlFile), p, fillMethod, handleMethod, handleLastMethod, handleDragMethod, handleDragLastMethod,
+        this(Paths.get(guiFile), p, fillMethod, handleMethod, handleLastMethod, handleDragMethod, handleDragLastMethod,
                 handleCloseMethod, cancelDefault, customConstructorCallback);
     }
 
-    protected FunctionalGui(Path xmlFile, Consumer<GUI> fillMethod, Function<GUI, Boolean> handleMethod,
+    protected FunctionalGui(Path guiFile, Consumer<GUI> fillMethod, Function<GUI, Boolean> handleMethod,
                             Consumer<GUI> handleLastMethod, Function<GUI, Boolean> handleDragMethod,
                             Consumer<GUI> handleDragLastMethod, Consumer<GUI> handleCloseMethod,
                             Function<GUI, Boolean> cancelDefault, Consumer<GUI> customConstructorCallback)
             throws XMLStreamException, IOException {
-        super(GuiReaderManager.getInstance().readFile(xmlFile));
+        super(GuiReaderManager.getInstance().readFile(guiFile));
         this.fill = fillMethod;
         this.handle = handleMethod;
         this.handleLater = handleLastMethod;
@@ -62,13 +62,13 @@ public class FunctionalGui extends GUI {
         executeCallback(customConstructorCallback);
     }
 
-    protected FunctionalGui(Path xmlFile, OfflinePlayer p, Consumer<GUI> fillMethod,
+    protected FunctionalGui(Path guiFile, OfflinePlayer p, Consumer<GUI> fillMethod,
                             Function<GUI, Boolean> handleMethod, Consumer<GUI> handleLastMethod,
                             Function<GUI, Boolean> handleDragMethod, Consumer<GUI> handleDragLastMethod,
                             Consumer<GUI> handleCloseMethod, Function<GUI, Boolean> cancelDefault,
                             Consumer<GUI> customConstructorCallback)
             throws XMLStreamException, IOException {
-        super(GuiReaderManager.getInstance().readFile(xmlFile), p);
+        super(GuiReaderManager.getInstance().readFile(guiFile), p);
         this.fill = fillMethod;
         this.handle = handleMethod;
         this.handleLater = handleLastMethod;

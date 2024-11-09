@@ -4,19 +4,22 @@ import de.neo.jagil.listener.GUIListener;
 import de.neo.jagil.manager.GuiReaderManager;
 import de.neo.jagil.reader.JsonGuiReader;
 import de.neo.jagil.reader.XmlGuiReader;
+import io.papermc.paper.plugin.configuration.PluginMeta;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.neo.jagil.manager.GUIManager;
-
-import java.util.HashMap;
 
 /**
  * JAGIL
  */
 public class JAGIL {
 
-	public static JavaPlugin loaderPlugin;
+	@Getter
+	@Setter
+	private static JavaPlugin loaderPlugin;
 
 	static {
 		GuiReaderManager.getInstance().register(new JsonGuiReader());
@@ -28,9 +31,14 @@ public class JAGIL {
 	 *
 	 * @param plugin your {@link JavaPlugin} instance.
 	 */
+	@SuppressWarnings({ "UnstableApiUsage" })
 	public static void init(JavaPlugin plugin) {
-		plugin.getLogger().info("Registered JAGIL from " + plugin.getDescription().getName() + " " + plugin.getDescription().getVersion());
-		new GUIManager();
+		PluginMeta pluginMeta = plugin.getPluginMeta();
+		plugin.getLogger().info("Registered JAGIL from " + pluginMeta.getName() + " " + pluginMeta.getVersion());
+
+		// Initializes GUI Manager
+		GUIManager.getInstance();
+
 		Bukkit.getPluginManager().registerEvents(new GUIListener(plugin), plugin);
 	}
 }

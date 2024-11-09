@@ -17,8 +17,8 @@ public class GuiBuilder {
     private OfflinePlayer p;
 
     // Vars for Xml
-    private String xmlFile;
-    private Path xmlPath;
+    private String guiFile;
+    private Path guiFilePath;
 
     // Vars for normal
     private String title;
@@ -61,15 +61,15 @@ public class GuiBuilder {
         return this;
     }
 
-    public GuiBuilder setXmlFile(String xmlFile) {
+    public GuiBuilder setGuiFile(String guiFile) {
         if(!fromXml) throw new BuildException("Cannot set xml file for normal GUI!");
-        this.xmlFile = xmlFile;
+        this.guiFile = guiFile;
         return this;
     }
 
-    public GuiBuilder setXmlPath(Path xmlPath) {
+    public GuiBuilder setGuiFilePath(Path guiFilePath) {
         if(!fromXml) throw new BuildException("Cannot set xml path for normal GUI!");
-        this.xmlPath = xmlPath;
+        this.guiFilePath = guiFilePath;
         return this;
     }
 
@@ -147,19 +147,19 @@ public class GuiBuilder {
         }
         if(fromXml) {
             try {
-                if(xmlFile == null && xmlPath == null) throw new BuildException("XML file and path cannot be null!");
-                if(xmlFile != null && xmlPath != null) throw new BuildException("XML file and path cannot be set at the same time!");
-                if(xmlFile != null) {
+                if(guiFile == null && guiFilePath == null) throw new BuildException("XML file and path cannot be null!");
+                if(guiFile != null && guiFilePath != null) throw new BuildException("XML file and path cannot be set at the same time!");
+                if(guiFile != null) {
                     if(universal) {
-                        return new FunctionalGui(xmlFile, fill, handle, handleLater, drag, dragLater, close, defaultCancel, customConstructorCallback);
+                        return new FunctionalGui(guiFile, fill, handle, handleLater, drag, dragLater, close, defaultCancel, customConstructorCallback);
                     }else {
-                        return new FunctionalGui(xmlFile, p, fill, handle, handleLater, drag, dragLater, close, defaultCancel, customConstructorCallback);
+                        return new FunctionalGui(guiFile, p, fill, handle, handleLater, drag, dragLater, close, defaultCancel, customConstructorCallback);
                     }
                 }
                 if(universal) {
-                    return new FunctionalGui(xmlPath, fill, handle, handleLater, drag, dragLater, close, defaultCancel, customConstructorCallback);
+                    return new FunctionalGui(guiFilePath, fill, handle, handleLater, drag, dragLater, close, defaultCancel, customConstructorCallback);
                 }else {
-                    return new FunctionalGui(xmlPath, p, fill, handle, handleLater, drag, dragLater, close, defaultCancel, customConstructorCallback);
+                    return new FunctionalGui(guiFilePath, p, fill, handle, handleLater, drag, dragLater, close, defaultCancel, customConstructorCallback);
                 }
             }catch (Exception e) {
                 throw new BuildException("Failed to build GUI from XML file!", e);

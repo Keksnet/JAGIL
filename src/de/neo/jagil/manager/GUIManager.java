@@ -15,8 +15,7 @@ public class GUIManager {
 	private HashSet<String> deleteLock;
 
 	@Internal
-	public GUIManager() {
-		INSTANCE = this;
+	private GUIManager() {
 		this.inventories = new HashMap<>();
 		this.deleteLock = new HashSet<>();
 	}
@@ -63,6 +62,10 @@ public class GUIManager {
 
 	@Internal
 	public static GUIManager getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new GUIManager();
+		}
+
 		return INSTANCE;
 	}
 }

@@ -1,20 +1,18 @@
 package de.neo.jagil.util;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 
 /**
  * This UtilityClass provides different methods to create and modify an {@link ItemStack}.
@@ -167,16 +165,11 @@ public class ItemTool {
 		if(!name.equalsIgnoreCase("")) {
 			meta.setDisplayName(name);
 		}
-		GameProfile gp = new GameProfile(UUID.randomUUID(), "");
-		gp.getProperties().put("textures", new Property("textures", base64));
-		try {
-			Field pr = meta.getClass().getDeclaredField("profile");
-			pr.setAccessible(true);
-			pr.set(meta, gp);
-			pr.setAccessible(false);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
+
+		PlayerProfile profile = Bukkit.getServer().createProfile(UUID.randomUUID());
+		profile.setProperty(new ProfileProperty("textures", base64));
+		meta.setPlayerProfile(profile);
+
 		is.setItemMeta(meta);
 		return is;
 	}

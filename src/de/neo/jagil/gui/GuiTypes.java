@@ -1,7 +1,6 @@
 package de.neo.jagil.gui;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import de.neo.jagil.JAGIL;
 import de.neo.jagil.ui.components.UIComponent;
 import de.neo.jagil.util.ComponentUtil;
@@ -9,7 +8,6 @@ import de.neo.jagil.util.InventoryPosition;
 import de.neo.jagil.util.ItemTool;
 import de.neo.jagil.util.Pair;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -210,7 +208,7 @@ public class GuiTypes {
             ItemMeta meta = is.getItemMeta();
 
             if(meta == null) {
-                JAGIL.loaderPlugin.getLogger().warning("Could not create item meta for item " + this);
+                JAGIL.getLoaderPlugin().getLogger().warning("Could not create item meta for item " + this);
                 meta = is.getItemMeta();
             }
 

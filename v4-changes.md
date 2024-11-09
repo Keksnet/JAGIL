@@ -1,5 +1,13 @@
 # Changes in v4
 
+## Compatibility
+Starting with JAGIL 4.0-beta.6 JAGIL will NOT support spigot or bukkit servers anymore.
+The reason behind this rapid change is sadly the compatibility with libraries used by JAGIL.
+Spigot and bukkit do not have support for the adventure api and MiniMessage.
+The adventure adapter for bukkit only provides support up to minecraft version 1.20.6 (as of now).
+Furthermore almost every minecraft server runs paper nowadays. Please keep using JAGIL v3.3.13
+if you need to stay on spigot.
+
 ## Animations
 - Animation frames (ItemStacks)
 - Json support

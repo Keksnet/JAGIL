@@ -1,9 +1,9 @@
 package de.neo.jagil.util;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-import de.neo.jagil.gui.GUI;
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import de.neo.jagil.gui.GuiTypes;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
@@ -12,7 +12,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -154,6 +153,7 @@ public class ItemBuilder {
         ItemStack is = new ItemStack(material, amount);
         enchantments.forEach(pair -> is.addUnsafeEnchantment(pair.getKey(), pair.getValue()));
         ItemMeta meta = is.getItemMeta();
+
         if(durability == -2) {
             meta.setUnbreakable(true);
         }else if(durability != -1) {
@@ -161,31 +161,31 @@ public class ItemBuilder {
                 ((Damageable) meta).setDamage(((Damageable) meta).getDamage() - durability);
             }
         }
+
         if(!name.isEmpty()) {
             meta.setDisplayName(name);
         }
+
         if(!lore.isEmpty()) {
             meta.setLore(lore);
         }
-        if(texture != null) {
-            GameProfile gp = new GameProfile(UUID.randomUUID(), "");
-            gp.getProperties().put("textures", new Property("textures", texture));
-            try {
-                Field pr = meta.getClass().getDeclaredField("profile");
-                pr.setAccessible(true);
-                pr.set(meta, gp);
-                pr.setAccessible(false);
-            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
+
+        if (meta instanceof SkullMeta skullMeta) {
+            if(texture != null) {
+                PlayerProfile profile = Bukkit.getServer().createProfile(UUID.randomUUID());
+                profile.setProperty(new ProfileProperty("textures", this.texture));
+                skullMeta.setPlayerProfile(profile);
+            }
+
+            if(skullOwner != null) {
+                skullMeta.setOwningPlayer(skullOwner);
             }
         }
-        if(skullOwner != null) {
-            SkullMeta skullMeta = (SkullMeta) meta;
-            skullMeta.setOwningPlayer(skullOwner);
-        }
+
         if(customModelData != 0) {
             meta.setCustomModelData(customModelData);
         }
+
         is.setItemMeta(meta);
         return is;
     }

@@ -39,7 +39,7 @@ public class GuiReaderManager {
      * @return the {@link GuiTypes.DataGui}
      */
     public GuiTypes.DataGui readFile(Path file) throws IOException {
-        String[] fileName = file.toString().split("[.]");
+        String[] fileName = file.toString().split("\\.");
         GuiReader<?> reader = GuiReaderManager.getInstance().getReader(fileName[fileName.length - 1].toLowerCase());
         String content = Files.readString(file);
         return reader.read(content);

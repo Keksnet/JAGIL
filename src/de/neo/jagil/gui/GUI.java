@@ -145,7 +145,7 @@ public class GUI {
 
 	private void register() {
 		if(p == null) return;
-		Bukkit.getScheduler().runTaskLater(JAGIL.loaderPlugin, () -> {
+		Bukkit.getScheduler().runTaskLater(JAGIL.getLoaderPlugin(), () -> {
 			GUIManager.getInstance().register(this);
 		}, 1L);
 	}
@@ -199,7 +199,7 @@ public class GUI {
 	 * Closes the {@link Inventory} of this {@link GUI} save.
 	 */
 	public final void closeInventory() {
-		Bukkit.getScheduler().runTask(JAGIL.loaderPlugin, () -> getPlayer().closeInventory());
+		Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> getPlayer().closeInventory());
 	}
 
 	private void updateInternal() {
@@ -246,7 +246,7 @@ public class GUI {
 		if(p == null) throw new RuntimeException("Please use show(OfflinePlayer) for universal GUIs");
 		register();
 		if(!Bukkit.isPrimaryThread()) {
-			Bukkit.getScheduler().runTask(JAGIL.loaderPlugin, () -> getPlayer().openInventory(this.inv));
+			Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> getPlayer().openInventory(this.inv));
 		}else {
 			getPlayer().openInventory(this.inv);
 		}
@@ -258,13 +258,13 @@ public class GUI {
 
 			if(animationTaskId != -1) Bukkit.getScheduler().cancelTask(animationTaskId);
 
-			animationTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(JAGIL.loaderPlugin, () -> {
+			animationTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(JAGIL.getLoaderPlugin(), () -> {
 				if(this.inv == null) return;
 				animate(ticks.getAndIncrement(), lastItem);
 			}, 0L, 1L);
 		}
 
-		Bukkit.getScheduler().runTaskLater(JAGIL.loaderPlugin, () -> GUIManager.getInstance().lockIfNotLocked(getIdentifier()), 1L);
+		Bukkit.getScheduler().runTaskLater(JAGIL.getLoaderPlugin(), () -> GUIManager.getInstance().lockIfNotLocked(getIdentifier()), 1L);
 		return this;
 	}
 

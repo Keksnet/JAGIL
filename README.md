@@ -1,10 +1,15 @@
 # JAGIL
-Version: 4.0-alpha.2
+Version: 4.0-beta.6
 
 just another generic inventory library (for Spigot)
 
 You have to install [JAGIL-Loader](https://github.com/Keksnet/JAGIL-Loader)
 on the server in order for JAGIL to work.
+
+## Important information regarding compatibility
+
+Starting with JAGIL 4.0-beta.6 JAGIL will NOT support spigot or bukkit servers anymore.
+For further inside please read the full notice [here](v4-changes.md).
 
 ## Maven
 #### Repository:
