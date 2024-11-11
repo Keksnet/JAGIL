@@ -2,6 +2,7 @@ package de.neo.jagil.reader;
 
 import de.neo.jagil.gui.GuiTypes;
 import de.neo.jagil.util.ParseUtil;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 
@@ -15,8 +16,6 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
@@ -88,9 +87,9 @@ public class XmlGuiReader extends GuiReader<Object> {
                                 case "name":
                                     if(tag.equalsIgnoreCase("item")) {
                                         if(item == null) continue;
-                                        item.name = chars.getData();
+                                        item.name = MiniMessage.miniMessage().deserialize(chars.getData());
                                     }else if(tag.equalsIgnoreCase("gui")) {
-                                        gui.name = chars.getData();
+                                        gui.name = MiniMessage.miniMessage().deserialize(chars.getData());
                                     }
                                     break;
 
@@ -101,7 +100,7 @@ public class XmlGuiReader extends GuiReader<Object> {
 
                                 case "line":
                                     if(item == null) continue;
-                                    item.lore.add(chars.getData());
+                                    item.lore.add(MiniMessage.miniMessage().deserialize(chars.getData()));
                                     break;
 
                                 case "size":

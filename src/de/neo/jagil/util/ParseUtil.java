@@ -1,13 +1,22 @@
 package de.neo.jagil.util;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.neo.jagil.annotation.Internal;
 import de.neo.jagil.gui.GuiTypes;
 import de.neo.jagil.ui.components.JsonParsable;
 import de.neo.jagil.ui.components.UIComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.ComponentSerializer;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 public class ParseUtil {
 
@@ -77,12 +86,41 @@ public class ParseUtil {
         return new Dimension(x, y);
     }
 
-
     @Internal
     public static <T extends UIComponent & JsonParsable> T getUIComponent(String type, JsonObject json)
             throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<T> uiClazz = (Class<T>) Class.forName(type);
         return uiClazz.getConstructor(JsonObject.class).newInstance(json);
+    }
+
+    @Internal
+    public static GuiTypes.MessageFormat getMessageFormat(JsonObject json, String key) {
+        String messageFormat = getJsonStringOrNull(json, key);
+        if (messageFormat == null || !Arrays.stream(GuiTypes.MessageFormat.values()).anyMatch((x) -> x.name().equalsIgnoreCase(messageFormat))) {
+            return GuiTypes.MessageFormat.MINI_MESSAGE;
+        }
+
+        return GuiTypes.MessageFormat.valueOf(messageFormat);
+    }
+
+    @Internal
+    public static Component getAsComponent(GuiTypes.DataGui gui, JsonElement jsonElement) {
+        ComponentSerializer<Component, ? extends Component, String> serializer;
+        switch (gui.messageFormat) {
+            case MINI_MESSAGE -> serializer = MiniMessage.miniMessage();
+            case LEGACY -> serializer = LegacyComponentSerializer.legacySection();
+            case PLAIN -> serializer = PlainTextComponentSerializer.plainText();
+            case JSON -> serializer = GsonComponentSerializer.gson();
+
+            default -> throw new IllegalArgumentException("Unsupported format: " + gui.messageFormat);
+        }
+
+        String serializedMessage = jsonElement.getAsString();
+        if (serializedMessage == null || serializedMessage.isBlank()) {
+            return Component.empty();
+        }
+
+        return serializer.deserialize(jsonElement.getAsString());
     }
 
 }

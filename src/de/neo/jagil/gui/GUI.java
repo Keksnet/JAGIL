@@ -4,13 +4,15 @@ import de.neo.jagil.JAGIL;
 import de.neo.jagil.annotation.Internal;
 import de.neo.jagil.annotation.OptionalImplementation;
 import de.neo.jagil.annotation.UnstableFeature;
-import de.neo.jagil.manager.GUIManager;
 import de.neo.jagil.ui.components.Clickable;
 import de.neo.jagil.ui.UIRenderPlainProvider;
 import de.neo.jagil.ui.UISystem;
 import de.neo.jagil.ui.impl.GuiUISystem;
 import de.neo.jagil.ui.impl.UIAction;
 import de.neo.jagil.util.InventoryPosition;
+import lombok.Getter;
+import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -19,6 +21,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.awt.*;
@@ -34,23 +37,37 @@ import java.util.logging.Logger;
  * @version 4.0
  * @author Neo8
  */
-public class GUI {
-	
-	private String name;
+public class GUI implements InventoryHolder {
+
+	@Setter
+	@Getter
+	private Component name;
+
+	@Getter
 	private int size;
-	private InventoryType type;
-	private OfflinePlayer p;
-	private Inventory inv;
-	private UISystem uiSystem;
+
+	@Getter
+	private Inventory inventory;
+
+	@Getter
 	private GuiTypes.DataGui guiData;
+
+	@Setter
+	@Getter
+	private long interactionCooldown;
+
+	private InventoryType type;
+	private OfflinePlayer offlinePlayer;
+	private UISystem uiSystem;
 	protected HashMap<String, Integer> itemIds;
 	public int animationTaskId;
 
-	private long cooldown;
-	private long lastHandle;
+
+
+	private long lastInteraction;
 
 	{
-		cooldown = 50;
+		interactionCooldown = 50;
 	}
 
 	/**
@@ -77,16 +94,15 @@ public class GUI {
 	 *
 	 * @param gui the {@link GuiTypes.DataGui} class to load the GUI from.
 	 */
-	public GUI(GuiTypes.DataGui gui, OfflinePlayer p) {
+	public GUI(GuiTypes.DataGui gui, OfflinePlayer offlinePlayer) {
 		guiData = gui;
 		name = gui.name;
 		size = gui.size;
-		this.p = p;
+		this.offlinePlayer = offlinePlayer;
 		itemIds = new HashMap<>();
 		for(GuiTypes.GuiItem item : gui.items.values()) {
 			itemIds.put(item.id, item.slot);
 		}
-		register();
 	}
 
 	/**
@@ -96,7 +112,7 @@ public class GUI {
 	 * @param name name of the {@link Inventory}
 	 * @param size size of the {@link Inventory}
 	 */
-	public GUI(String name, int size) {
+	public GUI(Component name, int size) {
 		this(name, size, null);
 	}
 
@@ -106,13 +122,12 @@ public class GUI {
 	 *
 	 * @param name name of the {@link Inventory}
 	 * @param size size of the {@link Inventory}
-	 * @param p the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
+	 * @param offlinePlayer the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
 	 */
-	public GUI(String name, int size, OfflinePlayer p) {
+	public GUI(Component name, int size, OfflinePlayer offlinePlayer) {
 		this.name = name;
 		this.size = size;
-		this.p = p;
-		register();
+		this.offlinePlayer = offlinePlayer;
 	}
 
 	/**
@@ -123,7 +138,7 @@ public class GUI {
 	 * @param type {@link InventoryType} of the {@link Inventory}
 	 */
 	@UnstableFeature
-	public GUI(String name, InventoryType type) {
+	public GUI(Component name, InventoryType type) {
 		this(name, type, null);
 	}
 
@@ -133,65 +148,28 @@ public class GUI {
 	 *
 	 * @param name name of the {@link Inventory}
 	 * @param type {@link InventoryType} of the {@link Inventory}
-	 * @param p the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
+	 * @param offlinePlayer the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
 	 */
 	@UnstableFeature
-	public GUI(String name, InventoryType type, OfflinePlayer p) {
+	public GUI(Component name, InventoryType type, OfflinePlayer offlinePlayer) {
 		this.name = name;
 		this.type = type;
-		this.p = p;
-		register();
-	}
-
-	private void register() {
-		if(p == null) return;
-		Bukkit.getScheduler().runTaskLater(JAGIL.getLoaderPlugin(), () -> {
-			GUIManager.getInstance().register(this);
-		}, 1L);
-	}
-
-	public final GUI setName(String name) {
-		this.name = name;
-		register();
-		return this;
-	}
-
-	public final String getName() {
-		return name;
-	}
-	
-	public final int getSize() {
-		return size;
+		this.offlinePlayer = offlinePlayer;
 	}
 	
 	public final UUID getPlayerUUID() {
-		return p.getUniqueId();
+		return this.offlinePlayer.getUniqueId();
 	}
 
 	public final Player getPlayer() {
-		return p.getPlayer();
-	}
-	
-	public final Inventory getInventory() {
-		return inv;
-	}
-
-	public final void setCooldown(long cooldown) {
-		this.cooldown = cooldown;
-	}
-
-	public final long getCooldown() {
-		return cooldown;
-	}
-
-	public final GuiTypes.DataGui getGuiData() {
-		return guiData;
+		return this.offlinePlayer.getPlayer();
 	}
 
 	public UISystem getUiSystem() {
-		if (uiSystem == null) {
-			uiSystem = new GuiUISystem(size);
+		if (this.uiSystem == null) {
+			this.uiSystem = new GuiUISystem(this.size);
 		}
+
 		return uiSystem;
 	}
 
@@ -203,11 +181,11 @@ public class GUI {
 	}
 
 	private void updateInternal() {
-		if(inv == null) {
-			if(size != 0) {
-				inv = Bukkit.createInventory(null, size, name);
+		if(this.inventory == null) {
+			if(this.size != 0) {
+				this.inventory = Bukkit.createInventory(this, this.size, this.name);
 			}else {
-				inv = Bukkit.createInventory(null, type, name);
+				this.inventory = Bukkit.createInventory(this, this.type, this.name);
 			}
 			fillInternal();
 		}else {
@@ -222,7 +200,7 @@ public class GUI {
 	 */
 	@Internal
 	protected final void update() {
-		if(p == null) throw new RuntimeException("This method should not be called on universal GUIs");
+		if(offlinePlayer == null) throw new RuntimeException("This method should not be called on universal GUIs");
 		updateInternal();
 	}
 
@@ -231,7 +209,7 @@ public class GUI {
 	 * The name can be updated this way.
 	 */
 	public final void forceUpdate() {
-		this.inv = null;
+		this.inventory = null;
 		updateInternal();
 	}
 
@@ -243,76 +221,79 @@ public class GUI {
 	 */
 	public final GUI show() {
 		update();
-		if(p == null) throw new RuntimeException("Please use show(OfflinePlayer) for universal GUIs");
-		register();
+		if(this.offlinePlayer == null) throw new RuntimeException("Please use show(OfflinePlayer) for universal GUIs");
 		if(!Bukkit.isPrimaryThread()) {
-			Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> getPlayer().openInventory(this.inv));
+			Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> getPlayer().openInventory(this.inventory));
 		}else {
-			getPlayer().openInventory(this.inv);
+			getPlayer().openInventory(this.inventory);
 		}
 		getPlayer().updateInventory();
 
-		if(guiData.animationMod != 0) {
-			AtomicInteger ticks = new AtomicInteger(0);
-			AtomicInteger lastItem = new AtomicInteger(0);
-
-			if(animationTaskId != -1) Bukkit.getScheduler().cancelTask(animationTaskId);
-
-			animationTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(JAGIL.getLoaderPlugin(), () -> {
-				if(this.inv == null) return;
-				animate(ticks.getAndIncrement(), lastItem);
-			}, 0L, 1L);
+		if(this.guiData.animationMod == 0) {
+			return this;
 		}
 
-		Bukkit.getScheduler().runTaskLater(JAGIL.getLoaderPlugin(), () -> GUIManager.getInstance().lockIfNotLocked(getIdentifier()), 1L);
+		AtomicInteger ticks = new AtomicInteger(0);
+		AtomicInteger lastItem = new AtomicInteger(0);
+
+		if(this.animationTaskId != -1) Bukkit.getScheduler().cancelTask(this.animationTaskId);
+
+		this.animationTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(JAGIL.getLoaderPlugin(), () -> {
+			if(this.inventory == null) return;
+			animate(ticks.getAndIncrement(), lastItem);
+		}, 0L, 1L);
 		return this;
 	}
 
 	/**
 	 * Call this method to open the {@link Inventory} of a universal {@link GUI} for a specific {@link Player}.
 	 *
-	 * @param p player that should see the {@link Inventory}
+	 * @param player player that should see the {@link Inventory}
 	 * @return instance for chaining
 	 */
-	public final GUI show(OfflinePlayer p) {
-		if (p != null) {
+	public final GUI show(OfflinePlayer player) {
+		if (player != null) {
 			Logger.getLogger("JAGIL")
 					.warning("Using show(OfflinePlayer) for non-universal GUIs is dangerous. Please try to avoid it.");
 		}
-		this.p = p;
-		register();
+
+		this.offlinePlayer = player;
 		this.updateInternal();
 		this.show();
-		this.p = null;
+		this.offlinePlayer = null;
 		return this;
 	}
 
 	protected final void fillInternal() {
-		if (guiData != null) {
-			guiData.ui
+		if (this.guiData != null) {
+			this.guiData.ui
 					.values()
 					.stream()
 					.filter(it -> !getUiSystem().hasComponent(it.getId()))
 					.forEach(getUiSystem()::addComponent);
 		}
+
 		getUiSystem().render();
 		GuiTypes.DataGui data = ((UIRenderPlainProvider<GuiTypes.DataGui>) getUiSystem().getRenderProvider()).getRenderPlain();
-		if (guiData != null) {
-			data.name = guiData.name;
-			data.size = guiData.size;
-			data.animationMod = guiData.animationMod;
-			data.merge(guiData);
+
+		if (this.guiData != null) {
+			data.name = this.guiData.name;
+			data.size = this.guiData.size;
+			data.animationMod = this.guiData.animationMod;
+			data.merge(this.guiData);
 		} else {
 			data.name = getName();
 			data.size = getSize();
 			data.animationMod = 0;
 		}
-		guiData = data;
-		for(GuiTypes.GuiItem guiItem : guiData.items.values()) {
+		this.guiData = data;
+
+		for(GuiTypes.GuiItem guiItem : this.guiData.items.values()) {
 			if(guiItem.slot < 0) continue;
 			ItemStack is = guiItem.toItem();
-			this.inv.setItem(guiItem.slot, is);
+			this.inventory.setItem(guiItem.slot, is);
 		}
+
 		fill();
 	}
 
@@ -327,33 +308,37 @@ public class GUI {
 	 * @param tick the current tick after the {@link GUI} was opened
 	 */
 	public void animate(long tick, AtomicInteger atomicLastItem) {
-		if(guiData == null) return;
-		if(guiData.animationMod == 0) return;
-		if(tick % guiData.animationMod != 0) return;
+		if (this.guiData == null) return;
+		if (this.guiData.animationMod == 0) return;
+		if (tick % this.guiData.animationMod != 0) return;
+
 		int lastItem = atomicLastItem.getAndIncrement();
-		for(GuiTypes.GuiItem guiItem : guiData.items.values()) {
+		for(GuiTypes.GuiItem guiItem : this.guiData.items.values()) {
 			if(guiItem == null) continue;
 			if(guiItem.slot < 0) continue;
 			if(guiItem.animationFrames.isEmpty()) continue;
 			GuiTypes.GuiAnimationFrame frame = guiItem.animationFrames.get((lastItem + 1) % guiItem.animationFrames.size());
 			frame.animate(tick, this);
 		}
+
 		getPlayer().updateInventory();
 	}
 
 	@Internal
 	public final boolean handleInternal(InventoryClickEvent e) {
-		if(System.currentTimeMillis() - this.lastHandle <= this.cooldown) {
+		if(System.currentTimeMillis() - this.lastInteraction <= this.interactionCooldown) {
 			handleBlocked(e);
 			return isCancelledByDefault();
 		}
-		this.lastHandle = System.currentTimeMillis();
+
+		this.lastInteraction = System.currentTimeMillis();
 		Point p = InventoryPosition.fromSlot(e.getSlot()).toPoint();
 		Clickable component = getUiSystem().getClickedComponent(p);
 		if (component != null) {
 			UIAction<GuiTypes.DataGui> click = new UIAction<>(e.getWhoClicked(), GuiTypes.DataGui.class, p, e.getClick());
 			component.click(click);
 		}
+
 		return handle(e);
 	}
 
@@ -419,6 +404,6 @@ public class GUI {
 
 	@Internal
 	public final String getIdentifier() {
-		return this.name + "-" + (this.p != null ? this.p.getUniqueId() : "universal");
+		return this.name + "-" + (this.offlinePlayer != null ? this.offlinePlayer.getUniqueId() : "universal");
 	}
 }

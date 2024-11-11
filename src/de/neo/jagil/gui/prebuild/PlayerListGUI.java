@@ -2,6 +2,7 @@ package de.neo.jagil.gui.prebuild;
 
 import de.neo.jagil.gui.GUI;
 import de.neo.jagil.util.ItemTool;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * A GUI for displaying a list of players.
- * Implementation by Nononitas from the "KeinSurvival". (https://github.com/Nononitas)
+ * Implementation by Nononitas from KeinSurvival. (https://github.com/Nononitas)
  * Edited by Neo8
  *
  * @author Nononitas
@@ -34,7 +35,7 @@ public class PlayerListGUI extends GUI {
     protected String nextPageString = "§aNext Page";
     protected String prevPageString = "§aPrevious Page";
 
-    public PlayerListGUI(Player player, String title) {
+    public PlayerListGUI(Player player, Component title) {
         super(title, 54, player);
     }
 

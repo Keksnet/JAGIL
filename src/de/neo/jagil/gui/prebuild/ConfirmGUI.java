@@ -1,6 +1,7 @@
 package de.neo.jagil.gui.prebuild;
 
 import de.neo.jagil.gui.GUI;
+import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,11 +19,11 @@ public class ConfirmGUI extends GUI {
 	private String cmd_no;
 	private ConfirmationHandler handler;
 	
-	public ConfirmGUI(String question, String cmd_yes, OfflinePlayer p) {
+	public ConfirmGUI(Component question, String cmd_yes, OfflinePlayer p) {
 		this(question, cmd_yes, null, p);
 	}
 
-	public ConfirmGUI(String question, String cmd_yes, String cmd_no, OfflinePlayer p) {
+	public ConfirmGUI(Component question, String cmd_yes, String cmd_no, OfflinePlayer p) {
 		super(question, 9, p);
 		this.cmd_yes = cmd_yes;
 		this.cmd_no = cmd_no;
@@ -32,7 +33,7 @@ public class ConfirmGUI extends GUI {
 		this.no_item = "§cNo";
 	}
 	
-	public ConfirmGUI(String question, ConfirmationHandler handler, OfflinePlayer p) {
+	public ConfirmGUI(Component question, ConfirmationHandler handler, OfflinePlayer p) {
 		super(question, 9, p);
 		this.handler = handler;
 		this.base64_yes = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTkyZTMxZmZiNTljOTBhYjA4ZmM5ZGMxZmUyNjgwMjAzNWEzYTQ3YzQyZmVlNjM0MjNiY2RiNDI2MmVjYjliNiJ9fX0=";

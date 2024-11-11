@@ -3,23 +3,16 @@ package de.neo.jagil.reader;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import de.neo.jagil.JAGIL;
 import de.neo.jagil.gui.GuiTypes;
 import de.neo.jagil.ui.components.UIComponent;
-import de.neo.jagil.util.ComponentUtil;
 import de.neo.jagil.util.InventoryPosition;
 import de.neo.jagil.util.ParseUtil;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 public class JsonGuiReader extends GuiReader<JsonObject> {
 
@@ -32,20 +25,29 @@ public class JsonGuiReader extends GuiReader<JsonObject> {
         GuiTypes.DataGui gui = new GuiTypes.DataGui();
         JsonObject json = new Gson().fromJson(content, JsonObject.class);
 
-        gui.name = ComponentUtil.convertFromDifferentFormats(ParseUtil.getJsonString(json, "name"));
+        // Unknown fileVersion
+        gui.fileVersion = -1;
+
+        JsonElement fileVersionElement = json.get("fileVersion");
+        if (fileVersionElement != null) {
+            gui.fileVersion = fileVersionElement.getAsLong();
+        }
+
+        gui.messageFormat = ParseUtil.getMessageFormat(json, "messageFormat");
+        gui.name = ParseUtil.getAsComponent(gui, json.get("name"));
         gui.size = json.get("size").getAsInt();
         gui.animationMod = ParseUtil.getJsonInt(json, "animationTick");
 
         if (json.has("items")) {
             parseItems(gui, json);
-        }else if (json.has("ui")) {
+        } else if (json.has("ui")) {
             try {
                 parseUI(gui, json);
             }catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }else {
-            Bukkit.getLogger().warning("[JAGIL] Empty GUI " + gui.name + ": no items section!");
+        } else {
+            JAGIL.getLogger().warning("[JAGIL] Empty GUI " + gui.name + ": no items section!");
             return gui;
         }
 
@@ -58,9 +60,11 @@ public class JsonGuiReader extends GuiReader<JsonObject> {
         GuiTypes.GuiItem item = new GuiTypes.GuiItem();
 
         item.id = ParseUtil.getJsonString(jsonItem, "id");
-        if(jsonItem.has("pos")) {
+
+        // parse slot/pos attribute
+        if (jsonItem.has("pos")) {
             item.slot = ParseUtil.getJsonPosition(jsonItem, "pos").toSlot();
-        }else {
+        } else {
             if (jsonItem.has("slot")) {
                 JsonElement slotElement = jsonItem.get("slot");
                 if (slotElement.isJsonPrimitive()) {
@@ -75,27 +79,28 @@ public class JsonGuiReader extends GuiReader<JsonObject> {
                     } else if (baseSlot.isJsonPrimitive()) {
                         item.slot = baseSlot.getAsJsonPrimitive().getAsInt();
                     } else {
-                        Bukkit.getLogger().warning("[JAGIL] slot property for item " + item.id + " is invalid!");
+                        JAGIL.getLogger().warning("[JAGIL] slot property for item " + item.id + " is invalid!");
                     }
                 } else {
-                    Bukkit.getLogger().warning("[JAGIL] slot property for item " + item.id + " is invalid!");
+                    JAGIL.getLogger().warning("[JAGIL] slot property for item " + item.id + " is invalid!");
                 }
             } else if (!item.id.isEmpty()) {
                 item.slot = ParseUtil.getAutoSlotId(gui);
             } else throw new IllegalStateException("slot is not json");
         }
+
         item.material = Material.getMaterial(ParseUtil.getJsonString(jsonItem, "material"));
-        item.name = ComponentUtil.convertFromDifferentFormats(ParseUtil.getJsonString(jsonItem, "name"));
+        item.name = ParseUtil.getAsComponent(gui, jsonItem.get("name"));
         item.amount = ParseUtil.getJsonInt(jsonItem, "amount");
         item.amount = item.amount == 0 ? 1 : item.amount;
+
         if (jsonItem.has("lore")) {
             for(JsonElement strElem : jsonItem.get("lore").getAsJsonArray()) {
-                String str = strElem.getAsString();
-                item.lore.add(ComponentUtil.convertFromDifferentFormats(str));
+                item.lore.add(ParseUtil.getAsComponent(gui, strElem));
             }
         }
 
-        if(jsonItem.has("enchantments")) {
+        if (jsonItem.has("enchantments")) {
             for(JsonElement enchantElem : jsonItem.get("enchantments").getAsJsonArray()) {
                 JsonObject enchJson = enchantElem.getAsJsonObject();
                 GuiTypes.GuiEnchantment enchantment = new GuiTypes.GuiEnchantment();
@@ -124,7 +129,7 @@ public class JsonGuiReader extends GuiReader<JsonObject> {
                 frame.position = animFrame.has("pos") ?
                         ParseUtil.getJsonPosition(animFrame, "pos") : InventoryPosition.fromSlot(item.slot);
                 frame.shouldCleanUp = !animFrame.has("cleanUp") || animFrame.get("cleanUp").getAsBoolean();
-                if(item.animationFrames.size() != 0)
+                if (!item.animationFrames.isEmpty())
                     frame.previousFrame = item.animationFrames.get(item.animationFrames.size() - 1);
                 item.animationFrames.add(frame);
             }
@@ -167,7 +172,7 @@ public class JsonGuiReader extends GuiReader<JsonObject> {
                         item2.slot = slot;
                         gui.items.put(slot, item2);
                     } else {
-                        Bukkit.getLogger().warning("[JAGIL] Invalid fill property item in GUI:" + fillElem);
+                        JAGIL.getLogger().warning("[JAGIL] Invalid fill property item in GUI:" + fillElem);
                     }
                 }
             }

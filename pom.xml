@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.neo.jagil</groupId>
 	<artifactId>JAGIL</artifactId>
-	<version>4.0-beta.5</version>
+	<version>4.0-beta.6</version>
 	<build>
 		<extensions>
 			<extension>
@@ -16,7 +16,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
+				<version>3.13.0</version>
 				<configuration>
 					<source>21</source>
 					<target>21</target>
@@ -24,7 +24,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>1.18.24</version>
+							<version>1.18.34</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
@@ -32,7 +32,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.11.1</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -45,7 +45,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.2.1</version>
+				<version>3.3.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -78,12 +78,6 @@
 			<groupId>io.papermc.paper</groupId>
 			<artifactId>paper-api</artifactId>
 			<version>1.21.1-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.mojang</groupId>
-			<artifactId>authlib</artifactId>
-			<version>6.0.54</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

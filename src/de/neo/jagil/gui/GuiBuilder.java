@@ -1,6 +1,7 @@
 package de.neo.jagil.gui;
 
 import de.neo.jagil.exception.BuildException;
+import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.inventory.InventoryType;
 
@@ -21,7 +22,7 @@ public class GuiBuilder {
     private Path guiFilePath;
 
     // Vars for normal
-    private String title;
+    private Component title;
     private int size;
     private InventoryType type;
 
@@ -73,7 +74,7 @@ public class GuiBuilder {
         return this;
     }
 
-    public GuiBuilder withTitle(String title) {
+    public GuiBuilder withTitle(Component title) {
         if(fromXml) throw new BuildException("Cannot set title for xml GUI!");
         this.title = title;
         return this;

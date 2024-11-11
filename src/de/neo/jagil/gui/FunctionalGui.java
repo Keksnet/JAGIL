@@ -1,6 +1,7 @@
 package de.neo.jagil.gui;
 
 import de.neo.jagil.manager.GuiReaderManager;
+import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -79,7 +80,7 @@ public class FunctionalGui extends GUI {
         executeCallback(customConstructorCallback);
     }
 
-    protected FunctionalGui(String name, int size, Consumer<GUI> fillMethod, Function<GUI, Boolean> handleMethod,
+    protected FunctionalGui(Component name, int size, Consumer<GUI> fillMethod, Function<GUI, Boolean> handleMethod,
                             Consumer<GUI> handleLastMethod, Function<GUI, Boolean> handleDragMethod,
                             Consumer<GUI> handleDragLastMethod, Consumer<GUI> handleCloseMethod,
                             Function<GUI, Boolean> cancelDefault, Consumer<GUI> customConstructorCallback) {
@@ -94,7 +95,7 @@ public class FunctionalGui extends GUI {
         executeCallback(customConstructorCallback);
     }
 
-    protected FunctionalGui(String name, int size, OfflinePlayer p, Consumer<GUI> fillMethod,
+    protected FunctionalGui(Component name, int size, OfflinePlayer p, Consumer<GUI> fillMethod,
                             Function<GUI, Boolean> handleMethod, Consumer<GUI> handleLastMethod,
                             Function<GUI, Boolean> handleDragMethod, Consumer<GUI> handleDragLastMethod,
                             Consumer<GUI> handleCloseMethod, Function<GUI, Boolean> cancelDefault,
@@ -110,7 +111,7 @@ public class FunctionalGui extends GUI {
         executeCallback(customConstructorCallback);
     }
 
-    protected FunctionalGui(String name, InventoryType type, Consumer<GUI> fillMethod,
+    protected FunctionalGui(Component name, InventoryType type, Consumer<GUI> fillMethod,
                             Function<GUI, Boolean> handleMethod, Consumer<GUI> handleLastMethod,
                             Function<GUI, Boolean> handleDragMethod, Consumer<GUI> handleDragLastMethod,
                             Consumer<GUI> handleCloseMethod, Function<GUI, Boolean> cancelDefault,
@@ -126,7 +127,7 @@ public class FunctionalGui extends GUI {
         executeCallback(customConstructorCallback);
     }
 
-    protected FunctionalGui(String name, InventoryType type, OfflinePlayer p, Consumer<GUI> fillMethod,
+    protected FunctionalGui(Component name, InventoryType type, OfflinePlayer p, Consumer<GUI> fillMethod,
                             Function<GUI, Boolean> handleMethod, Consumer<GUI> handleLastMethod,
                             Function<GUI, Boolean> handleDragMethod, Consumer<GUI> handleDragLastMethod,
                             Consumer<GUI> handleCloseMethod, Function<GUI, Boolean> cancelDefault,

@@ -3,17 +3,13 @@ package de.neo.jagil.gui;
 import com.google.gson.JsonElement;
 import de.neo.jagil.JAGIL;
 import de.neo.jagil.ui.components.UIComponent;
-import de.neo.jagil.util.ComponentUtil;
-import de.neo.jagil.util.InventoryPosition;
-import de.neo.jagil.util.ItemTool;
-import de.neo.jagil.util.Pair;
+import de.neo.jagil.util.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -26,7 +22,7 @@ public class GuiTypes {
         DataGui guiData = gui.getGuiData();
         ItemStack is = guiData.getItem(frame.itemId);
         if(is == null) {
-            Bukkit.getLogger().warning("[JAGIL] GUI " + gui.getName() + ": item " + frame.itemId + " not found!");
+            JAGIL.getLogger().warning("[JAGIL] GUI " + gui.getName() + ": item " + frame.itemId + " not found!");
             return;
         }
         Inventory inv = gui.getInventory();
@@ -35,9 +31,18 @@ public class GuiTypes {
         inv.setItem(slot, is);
     };
 
+    public enum MessageFormat {
+        MINI_MESSAGE,
+        LEGACY,
+        PLAIN,
+        JSON;
+    }
+
     public static class DataGui {
 
-        public String name;
+        public long fileVersion;
+        public MessageFormat messageFormat;
+        public Component name;
         public int size;
         public long animationMod;
         public HashMap<Integer, GuiItem> items;
@@ -45,7 +50,9 @@ public class GuiTypes {
         public HashMap<String, Integer> itemIdTable;
 
         public DataGui() {
-            this.name = "";
+            this.fileVersion = 4;
+            this.messageFormat = MessageFormat.MINI_MESSAGE;
+            this.name = Component.empty();
             this.size = 0;
             this.animationMod = 0;
             this.items = new HashMap<>();
@@ -142,9 +149,9 @@ public class GuiTypes {
         public String id;
         public int slot;
         public Material material;
-        public String name;
+        public Component name;
         public int amount;
-        public List<String> lore;
+        public List<Component> lore;
         public HashSet<GuiEnchantment> enchantments;
         public int customModelData;
         public String texture;
@@ -155,7 +162,7 @@ public class GuiTypes {
             this.id = "";
             this.slot = 0;
             this.material = Material.AIR;
-            this.name = "";
+            this.name = Component.empty();
             this.lore = new ArrayList<>();
             this.enchantments = new HashSet<>();
             this.texture = "";
@@ -178,45 +185,19 @@ public class GuiTypes {
         }
 
         public void applyNameComponent(Component component) {
-            this.name = ComponentUtil.convertToLegacy(component);
+            this.name = component;
         }
 
         public void applyNewLoreComponent(Component component) {
-            this.lore.add(ComponentUtil.convertToLegacy(component));
+            this.lore.add(component);
         }
 
         public void applyLoreComponent(int line, Component component) {
-            this.lore.set(line, ComponentUtil.convertToLegacy(component));
+            this.lore.set(line, component);
         }
 
         public ItemStack toItem() {
-            ItemStack is;
-            if (this.material == Material.PLAYER_HEAD || this.material == Material.PLAYER_WALL_HEAD) {
-                if (this.texture.isEmpty()) {
-                    is = new ItemStack(this.material, this.amount);
-                } else {
-                    is = ItemTool.createBase64Skull("", this.amount, this.texture);
-                }
-            } else {
-                is = new ItemStack(this.material, this.amount);
-            }
-            if (this.enchantments != null) {
-                for (GuiEnchantment enchantment : this.enchantments) {
-                    is.addUnsafeEnchantment(enchantment.enchantment, enchantment.level);
-                }
-            }
-            ItemMeta meta = is.getItemMeta();
-
-            if(meta == null) {
-                JAGIL.getLoaderPlugin().getLogger().warning("Could not create item meta for item " + this);
-                meta = is.getItemMeta();
-            }
-
-            meta.setDisplayName(this.name);
-            meta.setLore(this.lore);
-            if(this.customModelData != 0) meta.setCustomModelData(this.customModelData);
-            is.setItemMeta(meta);
-            return is;
+            return new ItemBuilder(this).build();
         }
 
         @Override
