@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -35,25 +36,25 @@ public class ItemTool {
 
 	/**
 	 * Creates a new {@link ItemStack} with the given amount and {@link Material}.
-	 * Invokes {@link ItemTool#createItem(String, int, Material)}.
+	 * Invokes {@link ItemTool#createItem(Component, int, Material)}.
 	 *
 	 * @param amount amount of items in the {@link ItemStack}
 	 * @param m material of the new {@link ItemStack}
 	 * @return the new {@link ItemStack}
 	 */
 	public static ItemStack createItem(int amount, Material m) {
-		return createItem("", amount, m);
+		return createItem(Component.empty(), amount, m);
 	}
 
 	/**
 	 * Creates a new {@link ItemStack} with the given name and {@link Material}.
-	 * Invokes {@link ItemTool#createItem(String, int, Material)}.
+	 * Invokes {@link ItemTool#createItem(Component, int, Material)}.
 	 *
 	 * @param name name of the new {@link ItemStack}
 	 * @param m material of the new {@link ItemStack}
 	 * @return the new {@link ItemStack}
 	 */
-	public static ItemStack createItem(String name, Material m) {
+	public static ItemStack createItem(Component name, Material m) {
 		return createItem(name, 1, m);
 	}
 
@@ -65,11 +66,11 @@ public class ItemTool {
 	 * @param m material of the new {@link ItemStack}
 	 * @return the new {@link ItemStack}
 	 */
-	public static ItemStack createItem(String name, int amount, Material m) {
+	public static ItemStack createItem(Component name, int amount, Material m) {
 		ItemStack is = new ItemStack(m, amount);
-		if(!name.equalsIgnoreCase("")) {
+		if(!name.equals(Component.empty())) {
 			ItemMeta meta = is.getItemMeta();
-			meta.setDisplayName(name);
+			meta.displayName(name);
 			is.setItemMeta(meta);
 		}
 		return is;
@@ -78,7 +79,7 @@ public class ItemTool {
 	/**
 	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}.
 	 * Invokes {@link ItemTool#createSkull(int, OfflinePlayer)}.
-	 * Use {@link ItemTool#createBase64Skull(String, int, String)} for players that are offline
+	 * Use {@link ItemTool#createBase64Skull(Component, int, String)} for players that are offline
 	 *
 	 * @param skullOwner the owner of the skull
 	 * @return the new {@link ItemStack}
@@ -89,26 +90,26 @@ public class ItemTool {
 
 	/**
 	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}.
-	 * Invokes {@link ItemTool#createSkull(String, int, OfflinePlayer)}.
-	 * Use {@link ItemTool#createBase64Skull(String, int, String)} for players that are offline
+	 * Invokes {@link ItemTool#createSkull(Component, int, OfflinePlayer)}.
+	 * Use {@link ItemTool#createBase64Skull(Component, int, String)} for players that are offline
 	 *
 	 * @param amount amount of items in the {@link ItemStack}
 	 * @param skullOwner the owner of the skull
 	 * @return the new {@link ItemStack}
 	 */
 	public static ItemStack createSkull(int amount, OfflinePlayer skullOwner) {
-		return createSkull("", amount, skullOwner);
+		return createSkull(Component.empty(), amount, skullOwner);
 	}
 
 	/**
 	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}.
-	 * Invokes {@link ItemTool#createSkull(String, int, OfflinePlayer)}.
+	 * Invokes {@link ItemTool#createSkull(Component, int, OfflinePlayer)}.
 	 *
 	 * @param name name of the new {@link ItemStack}
 	 * @param skullOwner the owner of the skull
 	 * @return the new {@link ItemStack}
 	 */
-	public static ItemStack createSkull(String name, OfflinePlayer skullOwner) {
+	public static ItemStack createSkull(Component name, OfflinePlayer skullOwner) {
 		return createSkull(name, 1, skullOwner);
 	}
 
@@ -120,7 +121,7 @@ public class ItemTool {
 	 * @param skullOwner the owner of the skull
 	 * @return the new {@link ItemStack}
 	 */
-	public static ItemStack createSkull(String name, int amount, OfflinePlayer skullOwner) {
+	public static ItemStack createSkull(Component name, int amount, OfflinePlayer skullOwner) {
 		ItemStack is = createItem(name, amount, Material.PLAYER_HEAD);
 		SkullMeta meta = (SkullMeta) is.getItemMeta();
 		meta.setOwningPlayer(skullOwner);
@@ -130,24 +131,36 @@ public class ItemTool {
 
 	/**
 	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}.
-	 * Invokes {@link ItemTool#createBase64Skull(String, int, String)}.
+	 * Invokes {@link ItemTool#createBase64Skull(Component, int, String)}.
 	 *
 	 * @param base64 base64 of the skull
 	 * @return the new {@link ItemStack}
 	 */
 	public static ItemStack createBase64Skull(String base64) {
-		return createBase64Skull("", 1, base64);
+		return createBase64Skull(Component.empty(), 1, base64);
 	}
 
 	/**
 	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}.
-	 * Invokes {@link ItemTool#createBase64Skull(String, int, String)}.
+	 * Invokes {@link ItemTool#createBase64Skull(Component, int, String)}.
+	 *
+	 * @param amount amount of items in the new {@link ItemStack}
+	 * @param base64 base64 of the skull
+	 * @return the new {@link ItemStack}
+	 */
+	public static ItemStack createBase64Skull(int amount, String base64) {
+		return createBase64Skull(Component.empty(), 1, base64);
+	}
+
+	/**
+	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}.
+	 * Invokes {@link ItemTool#createBase64Skull(Component, int, String)}.
 	 *
 	 * @param name name of the new {@link ItemStack}
 	 * @param base64 base64 of the skull
 	 * @return the new {@link ItemStack}
 	 */
-	public static ItemStack createBase64Skull(String name, String base64) {
+	public static ItemStack createBase64Skull(Component name, String base64) {
 		return createBase64Skull(name, 1, base64);
 	}
 
@@ -159,16 +172,76 @@ public class ItemTool {
 	 * @param base64 base64 of the skull
 	 * @return the new {@link ItemStack}
 	 */
-	public static ItemStack createBase64Skull(String name, int amount, String base64) {
+	public static ItemStack createBase64Skull(Component name, int amount, String base64) {
 		ItemStack is = new ItemStack(Material.PLAYER_HEAD, amount);
 		SkullMeta meta = (SkullMeta) is.getItemMeta();
-		if(!name.equalsIgnoreCase("")) {
-			meta.setDisplayName(name);
+		if (!name.equals(Component.empty())) {
+			meta.displayName(name);
 		}
 
 		PlayerProfile profile = Bukkit.getServer().createProfile(UUID.randomUUID());
 		profile.setProperty(new ProfileProperty("textures", base64));
 		meta.setPlayerProfile(profile);
+
+		is.setItemMeta(meta);
+		return is;
+	}
+
+	/**
+	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}
+	 * and attaches the given {@link PlayerProfile} to the {@link SkullMeta}.
+	 * Invokes {@link ItemTool#createSkull(Component, int, PlayerProfile)}.
+	 *
+	 * @param profile {@link PlayerProfile} to be attached to the head
+	 * @return the created {@link ItemStack}
+	 */
+	public static ItemStack createSkull(PlayerProfile profile) {
+		return createSkull(Component.empty(), 1, profile);
+	}
+
+	/**
+	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}
+	 * and attaches the given {@link PlayerProfile} to the {@link SkullMeta}.
+	 * Invokes {@link ItemTool#createSkull(Component, int, PlayerProfile)}.
+	 *
+	 * @param profile {@link PlayerProfile} to be attached to the head
+	 * @param amount amount of items in the new {@link ItemStack}
+	 * @return the created {@link ItemStack}
+	 */
+	public static ItemStack createSkull(int amount, PlayerProfile profile) {
+		return createSkull(Component.empty(), amount, profile);
+	}
+
+	/**
+	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}
+	 * and attaches the given {@link PlayerProfile} to the {@link SkullMeta}.
+	 * Invokes {@link ItemTool#createSkull(Component, int, PlayerProfile)}.
+	 *
+	 * @param profile {@link PlayerProfile} to be attached to the head
+	 * @param name name of the new {@link ItemStack}
+	 * @return the created {@link ItemStack}
+	 */
+	public static ItemStack createSkull(Component name, PlayerProfile profile) {
+		return createSkull(name, 1, profile);
+	}
+
+	/**
+	 * Creates a new {@link ItemStack} of {@link Material#PLAYER_HEAD}
+	 * and attaches the given {@link PlayerProfile} to the {@link SkullMeta}.
+	 *
+	 * @param profile {@link PlayerProfile} to be attached to the head
+	 * @param name name of the new {@link ItemStack}
+	 * @param amount amount of items in the new {@link ItemStack}
+	 * @return the created {@link ItemStack}
+	 */
+	public static ItemStack createSkull(Component name, int amount, PlayerProfile profile) {
+		ItemStack is = new ItemStack(Material.PLAYER_HEAD);
+		is.setAmount(amount);
+		SkullMeta meta = (SkullMeta) is.getItemMeta();
+		meta.setPlayerProfile(profile);
+		if (!name.equals(Component.empty())) {
+			meta.displayName(name);
+		}
 
 		is.setItemMeta(meta);
 		return is;
@@ -181,10 +254,10 @@ public class ItemTool {
 	 * @param lore the lines of the lore
 	 * @return the new {@link ItemStack}
 	 */
-	public static ItemStack setLore(ItemStack is, String... lore) {
-		List<String> lore_l = Arrays.asList(lore);
+	public static ItemStack setLore(ItemStack is, Component... lore) {
+		List<Component> lore_l = Arrays.asList(lore);
 		ItemMeta meta = is.getItemMeta();
-		meta.setLore(lore_l);
+		meta.lore(lore_l);
 		is.setItemMeta(meta);
 		return is;
 	}

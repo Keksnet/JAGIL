@@ -2,9 +2,7 @@ package de.neo.jagil.listener;
 
 import de.neo.jagil.JAGIL;
 import de.neo.jagil.annotation.Internal;
-import de.neo.jagil.exception.JAGILException;
 import de.neo.jagil.gui.GUI;
-import de.neo.jagil.manager.GUIManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;

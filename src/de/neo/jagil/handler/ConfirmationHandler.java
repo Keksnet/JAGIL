@@ -6,14 +6,14 @@ import org.bukkit.OfflinePlayer;
 public interface ConfirmationHandler {
 
 	/**
-	 * Called when the user clicks yes in a {@link ConfirmGUI}.
-	 * @param p clicking user
+	 * Called when the user confirms an action in a {@link ConfirmGUI}.
+	 * @param player clicking user
 	 */
-	public void handleYes(OfflinePlayer p);
+	void handleConfirm(OfflinePlayer player);
 
 	/**
-	 * Called when the user clicks no in a {@link ConfirmGUI}.
-	 * @param p clicking user
+	 * Called when the user cancels an action no in a {@link ConfirmGUI}.
+	 * @param player clicking user
 	 */
-	public void handleNo(OfflinePlayer p);
+	void handleCancel(OfflinePlayer player);
 }

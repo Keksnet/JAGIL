@@ -3,21 +3,32 @@ package de.neo.jagil.reader;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import de.neo.jagil.JAGIL;
 import de.neo.jagil.gui.GuiTypes;
 import de.neo.jagil.ui.components.UIComponent;
 import de.neo.jagil.util.InventoryPosition;
 import de.neo.jagil.util.ParseUtil;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
-public class JsonGuiReader extends GuiReader<JsonObject> {
+public class JsonGuiReader implements GuiReader<JsonObject> {
 
-    public JsonGuiReader() {
-        super("json");
+    @Override
+    public boolean supportsFile(Path filePath, String content) {
+        try {
+            new Gson().fromJson(content, JsonObject.class);
+            return true;
+        } catch (JsonSyntaxException ignored) {
+        }
+
+        return false;
     }
 
     @Override
@@ -105,7 +116,7 @@ public class JsonGuiReader extends GuiReader<JsonObject> {
                 JsonObject enchJson = enchantElem.getAsJsonObject();
                 GuiTypes.GuiEnchantment enchantment = new GuiTypes.GuiEnchantment();
                 enchantment.enchantment =
-                        Arrays.stream(Enchantment.values())
+                        RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream()
                                 .filter(it -> enchJson.get("name").getAsString().equalsIgnoreCase(it.toString()))
                                 .findFirst().get();
                 enchantment.level = enchJson.get("level").getAsInt();
@@ -195,11 +206,6 @@ public class JsonGuiReader extends GuiReader<JsonObject> {
         for(JsonElement elem : json.get("items").getAsJsonArray()) {
             parseItem(gui, elem.getAsJsonObject());
         }
-    }
-
-    @Override
-    public String getFileType() {
-        return super.getFileType();
     }
 
     private void applyFillObject(GuiTypes.DataGui gui, GuiTypes.GuiItem item, JsonObject fillObject) {

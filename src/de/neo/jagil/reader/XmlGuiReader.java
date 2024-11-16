@@ -16,20 +16,22 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
  * This class implements the {@link GuiReader} for xml.
- * It is deprecated and does not support {@link #parseItem(GuiTypes.DataGui, Object)} and {@link #parseItem(GuiTypes.DataGui, Object)}
+ * It is deprecated and does not support {@link #parseItem(GuiTypes.DataGui, Void)} and {@link #parseItem(GuiTypes.DataGui, Void)}
  * Removal planned for v5. Convert your existing xml files to json using /convert xml json (JAGIL-Loader only)
  *
  * @deprecated use {@link JsonGuiReader} instead. marked as for removal in v5.
  */
 @Deprecated(forRemoval = true)
-public class XmlGuiReader extends GuiReader<Object> {
+public class XmlGuiReader implements GuiReader<Void> {
 
-    public XmlGuiReader() {
-        super("xml");
+    @Override
+    public boolean supportsFile(Path filePath, String content) {
+        return filePath.getFileName().toString().endsWith(".xml");
     }
 
     @Override
@@ -149,17 +151,12 @@ public class XmlGuiReader extends GuiReader<Object> {
     }
 
     @Override
-    public void parseItem(GuiTypes.DataGui gui, Object itemObject) throws UnsupportedOperationException {
+    public void parseItem(GuiTypes.DataGui gui, Void ignore) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not supported by XmlGuiReader");
     }
 
     @Override
-    public void parseUIComponent(GuiTypes.DataGui gui, Object uiComponentObject) throws UnsupportedOperationException {
+    public void parseUIComponent(GuiTypes.DataGui gui, Void ignore) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not supported by XmlGuiReader");
-    }
-
-    @Override
-    public String getFileType() {
-        return super.getFileType();
     }
 }

@@ -11,8 +11,6 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import de.neo.jagil.manager.GUIManager;
-
 import java.util.logging.Logger;
 
 /**
@@ -47,9 +45,6 @@ public class JAGIL {
 	public static void init(JavaPlugin plugin) {
 		PluginMeta pluginMeta = plugin.getPluginMeta();
 		plugin.getLogger().info("Registered JAGIL from " + pluginMeta.getName() + " " + pluginMeta.getVersion());
-
-		// Initializes GUI Manager
-		GUIManager.getInstance();
 
 		Bukkit.getPluginManager().registerEvents(new GUIListener(plugin), plugin);
 	}

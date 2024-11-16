@@ -1,8 +1,10 @@
 package de.neo.jagil.gui.prebuild;
 
+import com.google.common.collect.ImmutableList;
 import de.neo.jagil.gui.GUI;
 import de.neo.jagil.util.ItemTool;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -28,12 +30,12 @@ public class PlayerListGUI extends GUI {
     private int page = 0;
 
     protected String backHead = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmViNTg4YjIxYTZmOThhZDFmZjRlMDg1YzU1MmRjYjA1MGVmYzljYWI0MjdmNDYwNDhmMThmYzgwMzQ3NWY3In19fQ==";
-    protected String backString = "§cBack";
-    protected String playerNameFormat = "§9%player%";
+    protected Component backComponent = LegacyComponentSerializer.legacySection().deserialize("§cBack");
+    protected Component playerNameFormat = LegacyComponentSerializer.legacySection().deserialize("§9%player%");
     protected String nextPageHead = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWYxMzNlOTE5MTlkYjBhY2VmZGMyNzJkNjdmZDg3YjRiZTg4ZGM0NGE5NTg5NTg4MjQ0NzRlMjFlMDZkNTNlNiJ9fX0=";
     protected String prevPageHead = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTNmYzUyMjY0ZDhhZDllNjU0ZjQxNWJlZjAxYTIzOTQ3ZWRiY2NjY2Y2NDkzNzMyODliZWE0ZDE0OTU0MWY3MCJ9fX0=";
-    protected String nextPageString = "§aNext Page";
-    protected String prevPageString = "§aPrevious Page";
+    protected Component nextPageComponent = LegacyComponentSerializer.legacySection().deserialize("§aNext Page");
+    protected Component prevPageComponent = LegacyComponentSerializer.legacySection().deserialize("§aPrevious Page");
 
     public PlayerListGUI(Player player, Component title) {
         super(title, 54, player);
@@ -42,26 +44,32 @@ public class PlayerListGUI extends GUI {
     @Override
     public void fill() {
         List<OfflinePlayer> playerList = getPlayerList();
-        final int constant = page * 28;
+        final int constant = this.page * 28;
         for (int i = 0, j = 0; i < 54; i++) {
             ItemStack item = ItemTool.createItem(Material.BLACK_STAINED_GLASS_PANE);
             if (i != 17 && i != 18 && i != 26 && i != 27 && i != 35 && i != 36) {
                 if (i == 8) {
-                    item = ItemTool.createBase64Skull(backString, backHead);
+                    item = ItemTool.createBase64Skull(this.backComponent, this.backHead);
                 } else if (i > 9 && i < 44) {
                     if (playerList.size() > j + constant) {
                         OfflinePlayer offlinePlayer = playerList.get(j + constant);
-                        item = ItemTool.createSkull(playerNameFormat.replace("%player%", offlinePlayer.getName()), offlinePlayer);
+                        if (offlinePlayer == null || offlinePlayer.getName() == null) {
+                            continue;
+                        }
+
+                        Component skullName = this.playerNameFormat.replaceText((builder) ->
+                                builder.matchLiteral("%player%").replacement(offlinePlayer.getName()));
+                        item = ItemTool.createSkull(skullName, offlinePlayer);
                         j++;
                     } else {
                         item = ItemTool.createItem(Material.GRAY_STAINED_GLASS_PANE);
                     }
 
                 } else if (i == 47 && page > 0) {
-                    item = ItemTool.createBase64Skull(nextPageString, nextPageHead);
+                    item = ItemTool.createBase64Skull(nextPageComponent, nextPageHead);
                 } else if (i == 51) {
                     if (constant + 28 < playerList.size()) {
-                        item = ItemTool.createBase64Skull(prevPageString, prevPageHead);
+                        item = ItemTool.createBase64Skull(prevPageComponent, prevPageHead);
                     }
                 }
             }
@@ -104,7 +112,7 @@ public class PlayerListGUI extends GUI {
     }
 
     public List<OfflinePlayer> getPlayerList() {
-        return new LinkedList<>(Bukkit.getOnlinePlayers().stream().collect(Collectors.toList()));
+        return ImmutableList.copyOf(Bukkit.getOnlinePlayers());
     }
 
 
