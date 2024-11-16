@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.neo.jagil</groupId>
 	<artifactId>JAGIL</artifactId>
-	<version>4.0-beta.7</version>
+	<version>4.0-beta.8</version>
 	<build>
 		<extensions>
 			<extension>
