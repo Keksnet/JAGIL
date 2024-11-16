@@ -27,8 +27,8 @@
       "description": "Size of the inventory (has to be a multiple of 9)",
       "type": "integer",
       "minimum": 9,
-      "maximum": 45,
-      "enum": [ 9, 18, 27, 36, 45 ]
+      "maximum": 54,
+      "enum": [ 9, 18, 27, 36, 45, 54 ]
     },
     "animationTick": {
       "description": "Number of animation frames until the animation loops",
