@@ -14,6 +14,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerTextures;
 
 /**
  * This UtilityClass provides different methods to create and modify an {@link ItemStack}.
@@ -245,6 +246,18 @@ public class ItemTool {
 
 		is.setItemMeta(meta);
 		return is;
+	}
+
+	public static ItemStack applySkullTexture(ItemStack itemStack, PlayerProfile profile) {
+		if (!itemStack.getType().equals(Material.PLAYER_HEAD)) {
+			throw new IllegalArgumentException("itemStack is not a PLAYER_HEAD");
+		}
+
+		SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
+		meta.setPlayerProfile(profile);
+
+		itemStack.setItemMeta(meta);
+		return itemStack;
 	}
 
 	/**

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repo.neo8.de/jagil/gui.schema.json",
+  "title": "JAGIL GUI Definition",
+  "description": "Defines templates and a default state for a JAGIL Gui",
+  "type": "object",
+  "properties": {
+    "fileVersion":{
+      "description": "feature version",
+      "type": "integer"
+    },
+    "messageFormat": {
+      "description": "Format of the messages in the file",
+      "type": "string",
+      "enum": [
+        "MINI_MESSAGE",
+        "LEGACY",
+        "PLAIN",
+        "JSON"
+      ]
+    },
+    "name": {
+      "description": "Title of the inventory",
+      "type": "string"
+    },
+    "size": {
+      "description": "Size of the inventory (has to be a multiple of 9)",
+      "type": "integer",
+      "minimum": 9,
+      "maximum": 45,
+      "enum": [ 9, 18, 27, 36, 45 ]
+    },
+    "animationTick": {
+      "description": "Number of animation frames until the animation loops",
+      "type": "integer",
+      "minimum": 0
+    },
+    "items": {
+      "description": "Items inside the gui and templates",
+      "type": "array",
+      "items": {
+        "$ref": "item.schema.json"
+      }
+    },
+    "ui": {
+      "description": "UI-Components",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "ui component type",
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "fileVersion",
+    "messageFormat",
+    "name",
+    "size"
+  ]
+}

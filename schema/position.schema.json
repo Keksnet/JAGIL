@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repo.neo8.de/jagil/item.schema.json",
+  "title": "JAGIL position definition",
+  "description": "Defines a JAGIL inventory position",
+  "type": "object",
+  "properties": {
+    "x": {
+      "description": "column of the item",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "y": {
+      "description": "row of the item",
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [ "x", "y" ]
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repo.neo8.de/jagil/item.schema.json",
+  "title": "JAGIL animation definition",
+  "description": "Defines a JAGIL inventory animation",
+  "type": "array",
+  "items": {
+    "description": "declares a single animation frame",
+    "type": "object",
+    "properties": {
+      "itemId": {
+        "description": "item id of the item in the specific animation frame",
+        "type": "string"
+      },
+      "pos": {
+        "description": "position of the item during this frame",
+        "type": "object",
+        "$ref": "position.schema.json"
+      },
+      "cleanUp": {
+        "description": "if the slot should be emptied",
+        "type": "boolean"
+      }
+    }
+  }
+}

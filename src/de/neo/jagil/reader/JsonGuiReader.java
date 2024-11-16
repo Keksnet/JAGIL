@@ -12,11 +12,9 @@ import de.neo.jagil.util.ParseUtil;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 public class JsonGuiReader implements GuiReader<JsonObject> {
 
@@ -124,8 +122,8 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
             }
         }
 
-        if(jsonItem.has("base64")) {
-            item.texture = ParseUtil.getJsonString(jsonItem, "base64");
+        if(jsonItem.has("texture")) {
+            item.texture = ParseUtil.getJsonString(jsonItem, "texture");
         }
 
         if(jsonItem.has("modelData")) {
@@ -156,15 +154,6 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
 
         if(!jsonItem.has("slot") || !jsonItem.get("slot").isJsonPrimitive()) {
             gui.items.put(item.slot, item);
-        }
-
-        if(jsonItem.has("fillTo")) {
-            int fillMax = jsonItem.get("fillTo").getAsInt();
-            for(int i = item.slot + 1; i <= fillMax; i++) {
-                GuiTypes.GuiItem item2 = new GuiTypes.GuiItem(item);
-                item2.slot = i;
-                gui.items.put(i, item2);
-            }
         }
 
         if(jsonItem.has("slot")) {

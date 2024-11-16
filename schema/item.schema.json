@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repo.neo8.de/jagil/item.schema.json",
+  "title": "JAGIL item definition",
+  "description": "Define a (template) item for use in JAGIL",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "alpha-numeric unique id for identifying the item in code",
+      "type": "string",
+      "pattern": "[a-zA-Z0-9]+"
+    },
+    "pos": {
+      "description": "slot the item should be placed in",
+      "type": "object",
+      "$ref": "position.schema.json"
+    },
+    "slot": {
+      "description": "expression specifying the slots to be filled with this item (template items have negative slot numbers)",
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "from": {
+              "description": "first slot in a series of slots that will be filled",
+              "type": "integer"
+            },
+            "to": {
+              "description": "last slot in a series of slots that will be filled",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "description": "array of the other representations of a slot",
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "description": "first slot in a series of slots that will be filled",
+                    "type": "integer"
+                  },
+                  "to": {
+                    "description": "last slot in a series of slots that will be filled",
+                    "type": "integer"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "material": {
+      "description": "bukkit material of the item",
+      "type": "string",
+      "pattern": "[A-Z_]+"
+    },
+    "name": {
+      "description": "name of the item",
+      "type": "string"
+    },
+    "amount": {
+      "description": "amount of items in the stack",
+      "type": "integer",
+      "minimum": 1
+    },
+    "lore": {
+      "description": "array of strings (each line is a separate line in the lore)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enchantments": {
+      "description": "array of enchantment objects",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "bukkit enchantment name",
+            "type": "string",
+            "pattern": "[A-Z_]+"
+          },
+          "level": {
+            "description": "enchantment level (can exceed the vanilla maximum)",
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "texture": {
+      "description": "texture for player head",
+      "type": "string"
+    },
+    "modelData": {
+      "description": "custom model data id",
+      "type": "integer"
+    },
+    "animation": {
+      "$ref": "animation.schema.json"
+    },
+    "attributes": {
+      "description": "attributes that can be accessed by code",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "attribute name",
+            "type": "string"
+          },
+          "value": {
+            "description": "attribute value",
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "id",
+    "material"
+  ]
+}
