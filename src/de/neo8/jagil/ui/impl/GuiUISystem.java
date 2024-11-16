@@ -1,10 +1,10 @@
 package de.neo8.jagil.ui.impl;
 
 import de.neo8.jagil.gui.GuiTypes;
-import de.neo8.jagil.ui.components.UIComponent;
 import de.neo8.jagil.ui.UIRenderPlainProvider;
 import de.neo8.jagil.ui.UISystem;
 import de.neo8.jagil.ui.components.Clickable;
+import de.neo8.jagil.ui.components.UIComponent;
 
 import java.awt.*;
 import java.util.Comparator;

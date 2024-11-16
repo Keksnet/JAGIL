@@ -43,8 +43,8 @@ public class ItemBuilder {
     @Setter
     private int customModelData;
 
-    private List<Component> lore;
-    private List<Pair<Enchantment, Integer>> enchantments;
+    private final List<Component> lore;
+    private final List<Pair<Enchantment, Integer>> enchantments;
 
     /**
      * Create a new ItemBuilder from the values of a {@link GuiTypes.GuiItem}.
@@ -104,9 +104,9 @@ public class ItemBuilder {
     /**
      * Create a new ItemBuilder.
      *
-     * @param material the material of the item
-     * @param name     the name of the item
-     * @param amount   the amount of the item
+     * @param material   the material of the item
+     * @param name       the name of the item
+     * @param amount     the amount of the item
      * @param durability the durability of the item
      *                   (-1 = ignore, -2 = unbreakable)
      */
@@ -172,11 +172,11 @@ public class ItemBuilder {
             }
         }
 
-        if(!this.name.equals(Component.empty())) {
+        if (!this.name.equals(Component.empty())) {
             meta.displayName(this.name);
         }
 
-        if(!lore.isEmpty()) {
+        if (!lore.isEmpty()) {
             meta.lore(this.lore);
         }
 

@@ -22,13 +22,13 @@ public class GuiTypes {
         GuiAnimationFrame frame = pair.getValue();
         DataGui guiData = gui.getGuiData();
         ItemStack is = guiData.getItem(frame.itemId);
-        if(is == null) {
+        if (is == null) {
             JAGIL.getLogger().warning("[JAGIL] GUI " + gui.getName() + ": item " + frame.itemId + " not found!");
             return;
         }
         Inventory inv = gui.getInventory();
         int slot = frame.position.toSlot();
-        if(frame.previousFrame != null && frame.shouldCleanUp) inv.clear(frame.previousFrame.position.toSlot());
+        if (frame.previousFrame != null && frame.shouldCleanUp) inv.clear(frame.previousFrame.position.toSlot());
         inv.setItem(slot, is);
     };
 
@@ -36,7 +36,7 @@ public class GuiTypes {
         MINI_MESSAGE,
         LEGACY,
         PLAIN,
-        JSON;
+        JSON
     }
 
     public static class DataGui {
@@ -79,7 +79,7 @@ public class GuiTypes {
          * @return the slot of the {@link ItemStack} with the given id
          */
         public int getSlot(String itemId) {
-            if(itemIdTable.isEmpty()) rebuildItemIdTable();
+            if (itemIdTable.isEmpty()) rebuildItemIdTable();
             return this.itemIdTable.getOrDefault(itemId, 999);
         }
 
@@ -91,7 +91,7 @@ public class GuiTypes {
          */
         public ItemStack getItem(String itemId) {
             int slot = getSlot(itemId);
-            if(slot == 999) {
+            if (slot == 999) {
                 return new ItemStack(Material.AIR);
             }
             return this.items.get(slot).toItem();
@@ -105,7 +105,7 @@ public class GuiTypes {
          */
         public GuiItem getGuiItem(String itemId) {
             int slot = getSlot(itemId);
-            if(slot == 999) {
+            if (slot == 999) {
                 return null;
             }
             return new GuiItem(this.items.get(slot));
@@ -118,10 +118,10 @@ public class GuiTypes {
          * @return the itemId of the {@link ItemStack} with the given slot
          */
         public String getItemId(int slot) {
-            if(itemIdTable.isEmpty()) rebuildItemIdTable();
+            if (itemIdTable.isEmpty()) rebuildItemIdTable();
             String itemId = "";
-            for(Map.Entry<String, Integer> entry : this.itemIdTable.entrySet()) {
-                if(entry.getValue() == slot) {
+            for (Map.Entry<String, Integer> entry : this.itemIdTable.entrySet()) {
+                if (entry.getValue() == slot) {
                     itemId = entry.getKey();
                     break;
                 }
@@ -131,7 +131,7 @@ public class GuiTypes {
 
         public void rebuildItemIdTable() {
             this.itemIdTable.clear();
-            for(Map.Entry<Integer, GuiItem> entry : this.items.entrySet()) {
+            for (Map.Entry<Integer, GuiItem> entry : this.items.entrySet()) {
                 this.itemIdTable.put(entry.getValue().id, entry.getKey());
             }
         }

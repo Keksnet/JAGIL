@@ -15,5 +15,4 @@ public interface Movable extends Dynamic {
     void moveTo(Point position);
 
 
-
 }

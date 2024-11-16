@@ -114,9 +114,11 @@ public class PlayerListGUI extends GUI {
     }
 
 
-    public void onPlayerClick(OfflinePlayer offlinePlayer) {}
+    public void onPlayerClick(OfflinePlayer offlinePlayer) {
+    }
 
-    public void onBack() {}
+    public void onBack() {
+    }
 
 
 }

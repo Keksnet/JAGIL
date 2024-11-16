@@ -52,7 +52,7 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         } else if (json.has("ui")) {
             try {
                 parseUI(gui, json);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else {
@@ -104,13 +104,13 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         item.amount = item.amount == 0 ? 1 : item.amount;
 
         if (jsonItem.has("lore")) {
-            for(JsonElement strElem : jsonItem.get("lore").getAsJsonArray()) {
+            for (JsonElement strElem : jsonItem.get("lore").getAsJsonArray()) {
                 item.lore.add(ParseUtil.getAsComponent(gui, strElem));
             }
         }
 
         if (jsonItem.has("enchantments")) {
-            for(JsonElement enchantElem : jsonItem.get("enchantments").getAsJsonArray()) {
+            for (JsonElement enchantElem : jsonItem.get("enchantments").getAsJsonArray()) {
                 JsonObject enchJson = enchantElem.getAsJsonObject();
                 GuiTypes.GuiEnchantment enchantment = new GuiTypes.GuiEnchantment();
                 enchantment.enchantment =
@@ -122,16 +122,16 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
             }
         }
 
-        if(jsonItem.has("texture")) {
+        if (jsonItem.has("texture")) {
             item.texture = ParseUtil.getJsonString(jsonItem, "texture");
         }
 
-        if(jsonItem.has("modelData")) {
+        if (jsonItem.has("modelData")) {
             item.customModelData = jsonItem.get("modelData").getAsInt();
         }
 
-        if(jsonItem.has("animation")) {
-            for(JsonElement animElem : jsonItem.get("animation").getAsJsonArray()) {
+        if (jsonItem.has("animation")) {
+            for (JsonElement animElem : jsonItem.get("animation").getAsJsonArray()) {
                 JsonObject animFrame = animElem.getAsJsonObject();
                 GuiTypes.GuiAnimationFrame frame = new GuiTypes.GuiAnimationFrame();
                 frame.itemId = animFrame.has("itemId") ? animFrame.get("itemId").getAsString() : item.id;
@@ -145,28 +145,28 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
             item.animationFrames.get(0).previousFrame = item.animationFrames.get(item.animationFrames.size() - 1);
         }
 
-        if(jsonItem.has("attributes")) {
-            for(JsonElement attrElem : jsonItem.get("attributes").getAsJsonArray()) {
+        if (jsonItem.has("attributes")) {
+            for (JsonElement attrElem : jsonItem.get("attributes").getAsJsonArray()) {
                 JsonObject attrJson = attrElem.getAsJsonObject();
                 item.attributes.put(attrJson.get("name").getAsString(), attrJson.get("value"));
             }
         }
 
-        if(!jsonItem.has("slot") || !jsonItem.get("slot").isJsonPrimitive()) {
+        if (!jsonItem.has("slot") || !jsonItem.get("slot").isJsonPrimitive()) {
             gui.items.put(item.slot, item);
         }
 
-        if(jsonItem.has("slot")) {
+        if (jsonItem.has("slot")) {
             JsonElement slotElement = jsonItem.get("slot");
             if (slotElement.isJsonPrimitive()) {
                 gui.items.put(item.slot, item);
             } else if (slotElement.isJsonObject()) {
                 applyFillObject(gui, item, slotElement.getAsJsonObject());
             } else if (slotElement.isJsonArray()) {
-                for(JsonElement fillElem : jsonItem.get("slot").getAsJsonArray()) {
-                    if(fillElem.isJsonObject()) {
+                for (JsonElement fillElem : jsonItem.get("slot").getAsJsonArray()) {
+                    if (fillElem.isJsonObject()) {
                         applyFillObject(gui, item, fillElem.getAsJsonObject());
-                    } else if(fillElem.isJsonPrimitive()) {
+                    } else if (fillElem.isJsonPrimitive()) {
                         int slot = fillElem.getAsInt();
                         GuiTypes.GuiItem item2 = new GuiTypes.GuiItem(item);
                         item2.slot = slot;
@@ -192,7 +192,7 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
     }
 
     public void parseItems(GuiTypes.DataGui gui, JsonObject json) {
-        for(JsonElement elem : json.get("items").getAsJsonArray()) {
+        for (JsonElement elem : json.get("items").getAsJsonArray()) {
             parseItem(gui, elem.getAsJsonObject());
         }
     }

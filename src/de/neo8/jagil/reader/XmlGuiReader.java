@@ -46,24 +46,25 @@ public class XmlGuiReader implements GuiReader<Void> {
         try {
             XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(new StringReader(content));
 
-            parser: {
-                while(reader.hasNext()) {
+            parser:
+            {
+                while (reader.hasNext()) {
                     XMLEvent event = reader.nextEvent();
 
-                    switch(event.getEventType()) {
+                    switch (event.getEventType()) {
                         case XMLStreamConstants.START_ELEMENT:
                             StartElement element = event.asStartElement();
                             String elem = element.getName().getLocalPart();
-                            if(elem.equalsIgnoreCase("gui") || elem.equalsIgnoreCase("item")
+                            if (elem.equalsIgnoreCase("gui") || elem.equalsIgnoreCase("item")
                                     || elem.equalsIgnoreCase("lore")
                                     || elem.equalsIgnoreCase("enchantment")) {
                                 tag = elem;
-                                if(elem.equalsIgnoreCase("item")) {
+                                if (elem.equalsIgnoreCase("item")) {
                                     item = new GuiTypes.GuiItem();
-                                }else if(elem.equalsIgnoreCase("enchantment")) {
+                                } else if (elem.equalsIgnoreCase("enchantment")) {
                                     enchantment = new GuiTypes.GuiEnchantment();
                                 }
-                            }else {
+                            } else {
                                 next = elem;
                             }
                             break;
@@ -72,36 +73,36 @@ public class XmlGuiReader implements GuiReader<Void> {
                             Characters chars = event.asCharacters();
                             switch (next) {
                                 case "id":
-                                    if(item == null) continue;
+                                    if (item == null) continue;
                                     item.id = chars.getData().trim();
                                     break;
 
                                 case "slot":
-                                    if(item == null) continue;
+                                    if (item == null) continue;
                                     item.slot = Integer.parseInt(ParseUtil.normalizeString(chars.getData()));
                                     break;
 
                                 case "material":
-                                    if(item == null) continue;
+                                    if (item == null) continue;
                                     item.material = Material.getMaterial(chars.getData().toUpperCase());
                                     break;
 
                                 case "name":
-                                    if(tag.equalsIgnoreCase("item")) {
-                                        if(item == null) continue;
+                                    if (tag.equalsIgnoreCase("item")) {
+                                        if (item == null) continue;
                                         item.name = MiniMessage.miniMessage().deserialize(chars.getData());
-                                    }else if(tag.equalsIgnoreCase("gui")) {
+                                    } else if (tag.equalsIgnoreCase("gui")) {
                                         gui.name = MiniMessage.miniMessage().deserialize(chars.getData());
                                     }
                                     break;
 
                                 case "amount":
-                                    if(item == null) continue;
+                                    if (item == null) continue;
                                     item.amount = Integer.parseInt(ParseUtil.normalizeString(chars.getData()));
                                     break;
 
                                 case "line":
-                                    if(item == null) continue;
+                                    if (item == null) continue;
                                     item.lore.add(MiniMessage.miniMessage().deserialize(chars.getData()));
                                     break;
 
@@ -110,19 +111,19 @@ public class XmlGuiReader implements GuiReader<Void> {
                                     break;
 
                                 case "enchantmentName":
-                                    if(enchantment == null) continue;
+                                    if (enchantment == null) continue;
                                     enchantment.enchantment = Arrays.stream(Enchantment.values())
                                             .filter((it) -> chars.getData().equalsIgnoreCase(it.toString()))
                                             .findFirst().get();
                                     break;
 
                                 case "enchantmentLevel":
-                                    if(enchantment == null) continue;
+                                    if (enchantment == null) continue;
                                     enchantment.level = Integer.parseInt(ParseUtil.normalizeString(chars.getData()));
                                     break;
 
                                 case "base64":
-                                    if(item == null) continue;
+                                    if (item == null) continue;
                                     item.texture = chars.getData();
                                     break;
                             }
@@ -131,9 +132,9 @@ public class XmlGuiReader implements GuiReader<Void> {
 
                         case XMLStreamConstants.END_ELEMENT:
                             EndElement endElement = event.asEndElement();
-                            if(endElement.getName().getLocalPart().equalsIgnoreCase("item")) {
+                            if (endElement.getName().getLocalPart().equalsIgnoreCase("item")) {
                                 gui.items.put(item.slot, item);
-                            }else if(endElement.getName().getLocalPart().equalsIgnoreCase("enchantment")) {
+                            } else if (endElement.getName().getLocalPart().equalsIgnoreCase("enchantment")) {
                                 item.enchantments.add(enchantment);
                             }
                             break;
@@ -144,7 +145,7 @@ public class XmlGuiReader implements GuiReader<Void> {
                     }
                 }
             }
-        }catch (XMLStreamException e) {
+        } catch (XMLStreamException e) {
             throw new IOException(e);
         }
         return gui;

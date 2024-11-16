@@ -21,7 +21,7 @@ public class ParseUtil {
 
     @Internal
     public static String getJsonString(JsonObject json, String key) {
-        if(!json.has(key)) return "";
+        if (!json.has(key)) return "";
         return json.get(key).getAsString();
     }
 
@@ -34,15 +34,15 @@ public class ParseUtil {
 
     @Internal
     public static int getJsonInt(JsonObject json, String key) {
-        if(!json.has(key)) return 0;
+        if (!json.has(key)) return 0;
         return json.get(key).getAsInt();
     }
 
     @Internal
     public static String normalizeString(String unfiltered) {
         StringBuilder r = new StringBuilder();
-        for(char c : unfiltered.toCharArray()) {
-            if(Character.isDigit(c) || c == '-') {
+        for (char c : unfiltered.toCharArray()) {
+            if (Character.isDigit(c) || c == '-') {
                 r.append(c);
             }
         }
@@ -51,8 +51,8 @@ public class ParseUtil {
 
     @Internal
     public static int getAutoSlotId(GuiTypes.DataGui gui) {
-        for(int i = -1; i > -999; i--) {
-            if(gui.items.containsKey(i)) continue;
+        for (int i = -1; i > -999; i--) {
+            if (gui.items.containsKey(i)) continue;
             return i;
         }
         throw new RuntimeException("No free slot id found!");
@@ -60,7 +60,7 @@ public class ParseUtil {
 
     @Internal
     public static InventoryPosition getJsonPosition(JsonObject frame, String key) {
-        if(!frame.has(key)) return InventoryPosition.DEFAULT;
+        if (!frame.has(key)) return InventoryPosition.DEFAULT;
         JsonObject json = frame.get(key).getAsJsonObject();
         int x = json.has("x") ? json.get("x").getAsInt() : 0;
         int y = json.has("y") ? json.get("y").getAsInt() : 0;
@@ -69,7 +69,7 @@ public class ParseUtil {
 
     @Internal
     public static Point getPosition(JsonObject frame, String key) {
-        if(!frame.has(key)) return new Point(0, 0);
+        if (!frame.has(key)) return new Point(0, 0);
         JsonObject json = frame.get(key).getAsJsonObject();
         int x = json.has("x") ? json.get("x").getAsInt() : 0;
         int y = json.has("y") ? json.get("y").getAsInt() : 0;
@@ -78,7 +78,7 @@ public class ParseUtil {
 
     @Internal
     public static Dimension getSize(JsonObject frame, String key) {
-        if(!frame.has(key)) return new Dimension(0, 0);
+        if (!frame.has(key)) return new Dimension(0, 0);
         JsonObject json = frame.get(key).getAsJsonObject();
         int x = json.has("width") ? json.get("width").getAsInt() : 0;
         int y = json.has("height") ? json.get("height").getAsInt() : 0;

@@ -74,8 +74,7 @@ public class Button implements UIComponent, Clickable, JsonParsable {
     @Override
     public void render(UIRenderPlainProvider<?> renderPlainProvider) {
         Object renderPlain = renderPlainProvider.getRenderPlain();
-        if (renderPlain instanceof GuiTypes.DataGui) {
-            GuiTypes.DataGui gui = (GuiTypes.DataGui) renderPlain;
+        if (renderPlain instanceof GuiTypes.DataGui gui) {
             boolean renderBorder = size.width >= 3 && size.height >= 3 && border;
             // Render inner button
             GuiTypes.GuiItem innerItem = new GuiTypes.GuiItem();

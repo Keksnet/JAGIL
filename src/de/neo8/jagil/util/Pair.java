@@ -2,8 +2,8 @@ package de.neo8.jagil.util;
 
 public class Pair<K, V> {
 
-    private K key;
-    private V value;
+    private final K key;
+    private final V value;
 
     public Pair(K key, V value) {
         this.key = key;

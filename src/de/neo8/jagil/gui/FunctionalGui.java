@@ -145,20 +145,20 @@ public class FunctionalGui extends GUI {
 
     private boolean executeCallback(Function<GUI, Boolean> callback) {
         boolean cancel = defaultCancel == null || executeCallback(defaultCancel);
-        if(callback == null) return cancel;
+        if (callback == null) return cancel;
         try {
             cancel = callback.apply(this);
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return cancel;
     }
 
     private void executeCallback(Consumer<GUI> callback) {
-        if(callback == null) return;
+        if (callback == null) return;
         try {
             callback.accept(this);
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
