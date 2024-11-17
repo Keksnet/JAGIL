@@ -2,13 +2,17 @@ package de.neo8.jagil.handler;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 public class CommandConfirmationHandler implements ConfirmationHandler {
 
+    @Nullable
     private final String confirmCommand;
+
+    @Nullable
     private final String cancelCommand;
 
-    public CommandConfirmationHandler(String confirmCommand, String cancelCommand) {
+    public CommandConfirmationHandler(@Nullable String confirmCommand, @Nullable String cancelCommand) {
         this.confirmCommand = confirmCommand;
         this.cancelCommand = cancelCommand;
     }
@@ -20,6 +24,10 @@ public class CommandConfirmationHandler implements ConfirmationHandler {
             return;
         }
 
+        if (this.confirmCommand == null) {
+            return;
+        }
+
         player.performCommand(this.confirmCommand);
     }
 
@@ -27,6 +35,10 @@ public class CommandConfirmationHandler implements ConfirmationHandler {
     public void handleCancel(OfflinePlayer offlinePlayer) {
         Player player = offlinePlayer.getPlayer();
         if (player == null) {
+            return;
+        }
+
+        if (this.cancelCommand == null) {
             return;
         }
 

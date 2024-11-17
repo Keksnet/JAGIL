@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.neo8.jagil</groupId>
 	<artifactId>JAGIL</artifactId>
-	<version>4.0-beta.8</version>
+	<version>4.0-beta.9</version>
 	<build>
 		<extensions>
 			<extension>
@@ -60,7 +60,7 @@
 	<distributionManagement>
 		<repository>
 			<id>ftp-repo</id>
-			<url>ftp://neo8.de/repo/</url>
+			<url>ftps://neo8.de/repo/</url>
 		</repository>
 	</distributionManagement>
 	<repositories>
