@@ -1,4 +1,4 @@
-package de.neo8.jagil.gui;
+package de.neo8.jagil.gui.inventory;
 
 import de.neo8.jagil.JAGIL;
 import de.neo8.jagil.annotation.Internal;
@@ -21,7 +21,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.awt.*;
@@ -31,13 +30,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
- * Represents a {@link GUI}.
+ * Represents a {@link InventoryGui}.
  * Extend this class to create your own GUI with {@link JAGIL}.
  *
  * @author Neo8
  * @version 4.0
  */
-public class GUI implements InventoryHolder {
+public class InventoryGui implements InventoryUserInterface, InventoryAnimatable {
 
     @Setter
     @Getter
@@ -50,19 +49,17 @@ public class GUI implements InventoryHolder {
     private Inventory inventory;
 
     @Getter
-    private GuiTypes.DataGui guiData;
+    private InventoryGuiTypes.DataGui guiData;
 
     @Setter
     @Getter
     private long interactionCooldown;
 
+    public int animationTaskId;
+    protected HashMap<String, Integer> itemIds;
     private InventoryType type;
     private OfflinePlayer offlinePlayer;
     private UISystem uiSystem;
-    protected HashMap<String, Integer> itemIds;
-    public int animationTaskId;
-
-
     private long lastInteraction;
 
     {
@@ -70,100 +67,103 @@ public class GUI implements InventoryHolder {
     }
 
     /**
-     * Creates a new instance of the {@link GUI} class.
-     * Use this constructor when you like to load a GUI from the {@link GuiTypes.DataGui} class.
-     * Use this constructor when you like to create a universal {@link GUI}.
+     * Creates a new instance of the {@link InventoryGui} class.
+     * Use this constructor when you like to load a GUI from the {@link InventoryGuiTypes.DataGui} class.
+     * Use this constructor when you like to create a universal {@link InventoryGui}.
      *
-     * @param gui the {@link GuiTypes.DataGui} class to load the GUI from.
+     * @param gui the {@link InventoryGuiTypes.DataGui} class to load the GUI from.
      */
-    public GUI(GuiTypes.DataGui gui) {
+    public InventoryGui(InventoryGuiTypes.DataGui gui) {
         guiData = gui;
         name = gui.name;
         size = gui.size;
         itemIds = new HashMap<>();
-        for (GuiTypes.GuiItem item : gui.items.values()) {
+        for (InventoryGuiTypes.GuiItem item : gui.items.values()) {
             itemIds.put(item.id, item.slot);
         }
     }
 
     /**
-     * Creates a new instance of the {@link GUI} class.
-     * Use this constructor when you like to load a GUI from the {@link GuiTypes.DataGui} class.
-     * Use this constructor when you like to create a non-universal {@link GUI}.
+     * Creates a new instance of the {@link InventoryGui} class.
+     * Use this constructor when you like to load a GUI from the {@link InventoryGuiTypes.DataGui} class.
+     * Use this constructor when you like to create a non-universal {@link InventoryGui}.
      *
-     * @param gui the {@link GuiTypes.DataGui} class to load the GUI from.
+     * @param gui the {@link InventoryGuiTypes.DataGui} class to load the GUI from.
      */
-    public GUI(GuiTypes.DataGui gui, OfflinePlayer offlinePlayer) {
+    public InventoryGui(InventoryGuiTypes.DataGui gui, OfflinePlayer offlinePlayer) {
         guiData = gui;
         name = gui.name;
         size = gui.size;
         this.offlinePlayer = offlinePlayer;
         itemIds = new HashMap<>();
-        for (GuiTypes.GuiItem item : gui.items.values()) {
+        for (InventoryGuiTypes.GuiItem item : gui.items.values()) {
             itemIds.put(item.id, item.slot);
         }
     }
 
     /**
-     * Creates a new instance of the {@link GUI} class.
-     * Use this constructor when you like to create a universal {@link GUI} with a specific size.
+     * Creates a new instance of the {@link InventoryGui} class.
+     * Use this constructor when you like to create a universal {@link InventoryGui} with a specific size.
      *
      * @param name name of the {@link Inventory}
      * @param size size of the {@link Inventory}
      */
-    public GUI(Component name, int size) {
+    public InventoryGui(Component name, int size) {
         this(name, size, null);
     }
 
     /**
-     * Creates a new instance of the {@link GUI} class.
-     * Use this constructor when you like to create a non-universal {@link GUI} with a specific size.
+     * Creates a new instance of the {@link InventoryGui} class.
+     * Use this constructor when you like to create a non-universal {@link InventoryGui} with a specific size.
      *
      * @param name          name of the {@link Inventory}
      * @param size          size of the {@link Inventory}
      * @param offlinePlayer the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
      */
-    public GUI(Component name, int size, OfflinePlayer offlinePlayer) {
+    public InventoryGui(Component name, int size, OfflinePlayer offlinePlayer) {
         this.name = name;
         this.size = size;
         this.offlinePlayer = offlinePlayer;
     }
 
     /**
-     * Creates a new instance of the {@link GUI} class.
-     * Use this constructor when you like to create a universal {@link GUI} with a specific {@link InventoryType}.
+     * Creates a new instance of the {@link InventoryGui} class.
+     * Use this constructor when you like to create a universal {@link InventoryGui} with a specific {@link InventoryType}.
      *
      * @param name name of the {@link Inventory}
      * @param type {@link InventoryType} of the {@link Inventory}
      */
     @UnstableFeature
-    public GUI(Component name, InventoryType type) {
+    public InventoryGui(Component name, InventoryType type) {
         this(name, type, null);
     }
 
     /**
-     * Creates a new instance of the {@link GUI} class.
-     * Use this constructor when you like to create a non-universal {@link GUI} with a specific size.
+     * Creates a new instance of the {@link InventoryGui} class.
+     * Use this constructor when you like to create a non-universal {@link InventoryGui} with a specific size.
      *
      * @param name          name of the {@link Inventory}
      * @param type          {@link InventoryType} of the {@link Inventory}
      * @param offlinePlayer the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
      */
     @UnstableFeature
-    public GUI(Component name, InventoryType type, OfflinePlayer offlinePlayer) {
+    public InventoryGui(Component name, InventoryType type, OfflinePlayer offlinePlayer) {
         this.name = name;
         this.type = type;
         this.offlinePlayer = offlinePlayer;
     }
 
+    @Override
     public final UUID getPlayerUUID() {
         return this.offlinePlayer.getUniqueId();
     }
 
+    @Override
     public final Player getPlayer() {
         return this.offlinePlayer.getPlayer();
     }
 
+    @Override
     public UISystem getUiSystem() {
         if (this.uiSystem == null) {
             this.uiSystem = new GuiUISystem(this.size);
@@ -173,8 +173,9 @@ public class GUI implements InventoryHolder {
     }
 
     /**
-     * Closes the {@link Inventory} of this {@link GUI} save.
+     * Closes the {@link Inventory} of this {@link InventoryGui} save.
      */
+    @Override
     public final void closeInventory() {
         Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> getPlayer().closeInventory());
     }
@@ -195,7 +196,7 @@ public class GUI implements InventoryHolder {
 
     /**
      * This method is called to create an Inventory.
-     * This is called by {@link GUI#show()} automatically.
+     * This is called by {@link InventoryGui#show()} automatically.
      */
     @Internal
     protected final void update() {
@@ -207,18 +208,20 @@ public class GUI implements InventoryHolder {
      * This method creates a new {@link Inventory}.
      * The name can be updated this way.
      */
+    @Override
     public final void forceUpdate() {
         this.inventory = null;
         updateInternal();
     }
 
     /**
-     * Call this method to open the inventory of a non-universal {@link GUI}.
+     * Call this method to open the inventory of a non-universal {@link InventoryGui}.
      *
      * @return instance for chaining
-     * @throws RuntimeException if the internal {@link Player} is null or this is used on a universal {@link GUI}
+     * @throws RuntimeException if the internal {@link Player} is null or this is used on a universal {@link InventoryGui}
      */
-    public final GUI show() {
+    @Override
+    public final InventoryGui show() {
         update();
         if (this.offlinePlayer == null) throw new RuntimeException("Please use show(OfflinePlayer) for universal GUIs");
         if (!Bukkit.isPrimaryThread()) {
@@ -245,12 +248,12 @@ public class GUI implements InventoryHolder {
     }
 
     /**
-     * Call this method to open the {@link Inventory} of a universal {@link GUI} for a specific {@link Player}.
+     * Call this method to open the {@link Inventory} of a universal {@link InventoryGui} for a specific {@link Player}.
      *
      * @param player player that should see the {@link Inventory}
      * @return instance for chaining
      */
-    public final GUI show(OfflinePlayer player) {
+    public final InventoryGui show(OfflinePlayer player) {
         if (player != null) {
             Logger.getLogger("JAGIL")
                     .warning("Using show(OfflinePlayer) for non-universal GUIs is dangerous. Please try to avoid it.");
@@ -273,7 +276,7 @@ public class GUI implements InventoryHolder {
         }
 
         getUiSystem().render();
-        GuiTypes.DataGui data = ((UIRenderPlainProvider<GuiTypes.DataGui>) getUiSystem().getRenderProvider()).getRenderPlain();
+        InventoryGuiTypes.DataGui data = ((UIRenderPlainProvider<InventoryGuiTypes.DataGui>) getUiSystem().getRenderProvider()).getRenderPlain();
 
         if (this.guiData != null) {
             data.name = this.guiData.name;
@@ -287,7 +290,7 @@ public class GUI implements InventoryHolder {
         }
         this.guiData = data;
 
-        for (GuiTypes.GuiItem guiItem : this.guiData.items.values()) {
+        for (InventoryGuiTypes.GuiItem guiItem : this.guiData.items.values()) {
             if (guiItem.slot < 0) continue;
             ItemStack is = guiItem.toItem();
             this.inventory.setItem(guiItem.slot, is);
@@ -297,27 +300,29 @@ public class GUI implements InventoryHolder {
     }
 
     /**
-     * Fills this {@link GUI}
+     * Fills this {@link InventoryGui}
      */
+    @Override
     public void fill() {
     }
 
     /**
-     * This method is called once a tick to animate the {@link GUI}.
+     * This method is called once a tick to animate the {@link InventoryGui}.
      *
-     * @param tick the current tick after the {@link GUI} was opened
+     * @param tick the current tick after the {@link InventoryGui} was opened
      */
+    @Override
     public void animate(long tick, AtomicInteger atomicLastItem) {
         if (this.guiData == null) return;
         if (this.guiData.animationMod == 0) return;
         if (tick % this.guiData.animationMod != 0) return;
 
         int lastItem = atomicLastItem.getAndIncrement();
-        for (GuiTypes.GuiItem guiItem : this.guiData.items.values()) {
+        for (InventoryGuiTypes.GuiItem guiItem : this.guiData.items.values()) {
             if (guiItem == null) continue;
             if (guiItem.slot < 0) continue;
             if (guiItem.animationFrames.isEmpty()) continue;
-            GuiTypes.GuiAnimationFrame frame = guiItem.animationFrames.get((lastItem + 1) % guiItem.animationFrames.size());
+            InventoryGuiTypes.GuiAnimationFrame frame = guiItem.animationFrames.get((lastItem + 1) % guiItem.animationFrames.size());
             frame.animate(tick, this);
         }
 
@@ -335,7 +340,7 @@ public class GUI implements InventoryHolder {
         Point p = InventoryPosition.fromSlot(e.getSlot()).toPoint();
         Clickable component = getUiSystem().getClickedComponent(p);
         if (component != null) {
-            UIAction<GuiTypes.DataGui> click = new UIAction<>(e.getWhoClicked(), GuiTypes.DataGui.class, p, e.getClick());
+            UIAction<InventoryGuiTypes.DataGui> click = new UIAction<>(e.getWhoClicked(), InventoryGuiTypes.DataGui.class, p, e.getClick());
             component.click(click);
         }
 
@@ -349,15 +354,17 @@ public class GUI implements InventoryHolder {
      * @param e the fired {@link InventoryClickEvent}
      * @return if the event should be cancelled or not.
      */
+    @Override
     public boolean handle(InventoryClickEvent e) {
         return isCancelledByDefault();
     }
 
     /**
-     * Like {@link GUI#handle(InventoryClickEvent)} but optional and one tick later.
+     * Like {@link InventoryGui#handle(InventoryClickEvent)} but optional and one tick later.
      *
      * @param e the fired {@link InventoryClickEvent}
      */
+    @Override
     @OptionalImplementation
     public void handleLast(InventoryClickEvent e) {
     }
@@ -367,6 +374,7 @@ public class GUI implements InventoryHolder {
      *
      * @param e the fired {@link InventoryClickEvent}
      */
+    @Override
     @OptionalImplementation
     public void handleBlocked(InventoryClickEvent e) {
     }
@@ -377,25 +385,28 @@ public class GUI implements InventoryHolder {
      * @param e the fired {@link InventoryDragEvent}
      * @return if the event should be cancelled or not.
      */
+    @Override
     @OptionalImplementation
     public boolean handleDrag(InventoryDragEvent e) {
         return isCancelledByDefault();
     }
 
     /**
-     * Like {@link GUI#handleDrag(InventoryDragEvent)} but optional and one tick later.
+     * Like {@link InventoryGui#handleDrag(InventoryDragEvent)} but optional and one tick later.
      *
      * @param e the fired {@link InventoryClickEvent}
      */
+    @Override
     @OptionalImplementation
     public void handleDragLast(InventoryDragEvent e) {
     }
 
     /**
-     * Like {@link GUI#handleDrag(InventoryDragEvent)} but optional and one tick later.
+     * Like {@link InventoryGui#handleDrag(InventoryDragEvent)} but optional and one tick later.
      *
      * @param e the fired {@link InventoryClickEvent}
      */
+    @Override
     @OptionalImplementation
     public void handleClose(InventoryCloseEvent e) {
     }
@@ -405,13 +416,10 @@ public class GUI implements InventoryHolder {
      *
      * @return the default cancel-value
      */
+    @Override
     @OptionalImplementation
     public boolean isCancelledByDefault() {
         return true;
     }
 
-    @Internal
-    public final String getIdentifier() {
-        return this.name + "-" + (this.offlinePlayer != null ? this.offlinePlayer.getUniqueId() : "universal");
-    }
 }

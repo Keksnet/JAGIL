@@ -1,4 +1,4 @@
-package de.neo8.jagil.gui;
+package de.neo8.jagil.gui.inventory;
 
 import com.google.gson.JsonElement;
 import de.neo8.jagil.JAGIL;
@@ -15,18 +15,18 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class GuiTypes {
+public class InventoryGuiTypes {
 
-    public final static BiConsumer<Long, Pair<GUI, GuiAnimationFrame>> DEFAULT_ANIMATION = (tick, pair) -> {
-        GUI gui = pair.getKey();
+    public final static BiConsumer<Long, Pair<InventoryGui, GuiAnimationFrame>> DEFAULT_ANIMATION = (tick, pair) -> {
+        InventoryGui inventoryGui = pair.getKey();
         GuiAnimationFrame frame = pair.getValue();
-        DataGui guiData = gui.getGuiData();
+        DataGui guiData = inventoryGui.getGuiData();
         ItemStack is = guiData.getItem(frame.itemId);
         if (is == null) {
-            JAGIL.getLogger().warning("[JAGIL] GUI " + gui.getName() + ": item " + frame.itemId + " not found!");
+            JAGIL.getLogger().warning("[JAGIL] GUI " + inventoryGui.getName() + ": item " + frame.itemId + " not found!");
             return;
         }
-        Inventory inv = gui.getInventory();
+        Inventory inv = inventoryGui.getInventory();
         int slot = frame.position.toSlot();
         if (frame.previousFrame != null && frame.shouldCleanUp) inv.clear(frame.previousFrame.position.toSlot());
         inv.setItem(slot, is);
@@ -239,7 +239,7 @@ public class GuiTypes {
         public InventoryPosition position;
         public boolean shouldCleanUp;
         public GuiAnimationFrame previousFrame;
-        public BiConsumer<Long, Pair<GUI, GuiAnimationFrame>> animation;
+        public BiConsumer<Long, Pair<InventoryGui, GuiAnimationFrame>> animation;
 
         public GuiAnimationFrame() {
             this.itemId = "";
@@ -247,8 +247,8 @@ public class GuiTypes {
             this.animation = DEFAULT_ANIMATION;
         }
 
-        public void animate(long tick, GUI gui) {
-            this.animation.accept(tick, new Pair<>(gui, this));
+        public void animate(long tick, InventoryGui inventoryGui) {
+            this.animation.accept(tick, new Pair<>(inventoryGui, this));
         }
 
     }

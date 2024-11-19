@@ -2,7 +2,7 @@ package de.neo8.jagil.util;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
-import de.neo8.jagil.gui.GuiTypes;
+import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -47,12 +47,12 @@ public class ItemBuilder {
     private final List<Pair<Enchantment, Integer>> enchantments;
 
     /**
-     * Create a new ItemBuilder from the values of a {@link GuiTypes.GuiItem}.
+     * Create a new ItemBuilder from the values of a {@link InventoryGuiTypes.GuiItem}.
      * Be aware that this operation will eventually discard some information.
      *
      * @param guiItem item to get the values from
      */
-    public ItemBuilder(GuiTypes.GuiItem guiItem) {
+    public ItemBuilder(InventoryGuiTypes.GuiItem guiItem) {
         this.material = guiItem.material;
         this.name = guiItem.name;
         this.amount = guiItem.amount;

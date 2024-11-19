@@ -1,7 +1,7 @@
-package de.neo8.jagil.gui.prebuild;
+package de.neo8.jagil.gui.inventory.prebuild;
 
 import com.google.common.collect.ImmutableList;
-import de.neo8.jagil.gui.GUI;
+import de.neo8.jagil.gui.inventory.InventoryGui;
 import de.neo8.jagil.util.ItemTool;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -23,7 +23,7 @@ import java.util.List;
  * @author Nononitas
  * @version 3.3.5
  */
-public class PlayerListGUI extends GUI {
+public class PlayerListInventoryGui extends InventoryGui {
 
     private int page = 0;
 
@@ -35,7 +35,7 @@ public class PlayerListGUI extends GUI {
     protected Component nextPageComponent = LegacyComponentSerializer.legacySection().deserialize("§aNext Page");
     protected Component prevPageComponent = LegacyComponentSerializer.legacySection().deserialize("§aPrevious Page");
 
-    public PlayerListGUI(Player player, Component title) {
+    public PlayerListInventoryGui(Player player, Component title) {
         super(title, 54, player);
     }
 

@@ -1,6 +1,6 @@
 package de.neo8.jagil.ui.impl;
 
-import de.neo8.jagil.gui.GuiTypes;
+import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.ui.UIRenderPlainProvider;
 import de.neo8.jagil.ui.UISystem;
 import de.neo8.jagil.ui.components.Clickable;
@@ -17,7 +17,7 @@ public class GuiUISystem implements UISystem {
     private final int size;
     private final HashMap<String, UIComponent> components;
 
-    private final UIRenderPlainProvider<GuiTypes.DataGui> renderPlain;
+    private final UIRenderPlainProvider<InventoryGuiTypes.DataGui> renderPlain;
 
     public GuiUISystem(int size) {
         this.size = size;

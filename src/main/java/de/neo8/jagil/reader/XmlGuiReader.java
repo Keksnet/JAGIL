@@ -1,6 +1,6 @@
 package de.neo8.jagil.reader;
 
-import de.neo8.jagil.gui.GuiTypes;
+import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.util.ParseUtil;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 /**
  * This class implements the {@link GuiReader} for xml.
- * It is deprecated and does not support {@link #parseItem(GuiTypes.DataGui, Void)} and {@link #parseItem(GuiTypes.DataGui, Void)}
+ * It is deprecated and does not support {@link #parseItem(InventoryGuiTypes.DataGui, Void)} and {@link #parseItem(InventoryGuiTypes.DataGui, Void)}
  * Removal planned for v5. Convert your existing xml files to json using /convert xml json (JAGIL-Loader only)
  *
  * @deprecated use {@link JsonGuiReader} instead. marked as for removal in v5.
@@ -35,13 +35,13 @@ public class XmlGuiReader implements GuiReader<Void> {
     }
 
     @Override
-    public GuiTypes.DataGui read(String content) throws IOException {
-        GuiTypes.DataGui gui = new GuiTypes.DataGui();
+    public InventoryGuiTypes.DataGui read(String content) throws IOException {
+        InventoryGuiTypes.DataGui gui = new InventoryGuiTypes.DataGui();
 
         String tag = "";
         String next = "";
-        GuiTypes.GuiItem item = null;
-        GuiTypes.GuiEnchantment enchantment = null;
+        InventoryGuiTypes.GuiItem item = null;
+        InventoryGuiTypes.GuiEnchantment enchantment = null;
 
         try {
             XMLEventReader reader = XMLInputFactory.newInstance().createXMLEventReader(new StringReader(content));
@@ -60,9 +60,9 @@ public class XmlGuiReader implements GuiReader<Void> {
                                     || elem.equalsIgnoreCase("enchantment")) {
                                 tag = elem;
                                 if (elem.equalsIgnoreCase("item")) {
-                                    item = new GuiTypes.GuiItem();
+                                    item = new InventoryGuiTypes.GuiItem();
                                 } else if (elem.equalsIgnoreCase("enchantment")) {
-                                    enchantment = new GuiTypes.GuiEnchantment();
+                                    enchantment = new InventoryGuiTypes.GuiEnchantment();
                                 }
                             } else {
                                 next = elem;
@@ -152,12 +152,12 @@ public class XmlGuiReader implements GuiReader<Void> {
     }
 
     @Override
-    public void parseItem(GuiTypes.DataGui gui, Void ignore) throws UnsupportedOperationException {
+    public void parseItem(InventoryGuiTypes.DataGui gui, Void ignore) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not supported by XmlGuiReader");
     }
 
     @Override
-    public void parseUIComponent(GuiTypes.DataGui gui, Void ignore) throws UnsupportedOperationException {
+    public void parseUIComponent(InventoryGuiTypes.DataGui gui, Void ignore) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("not supported by XmlGuiReader");
     }
 }

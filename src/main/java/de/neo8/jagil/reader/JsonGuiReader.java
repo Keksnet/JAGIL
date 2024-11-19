@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import de.neo8.jagil.JAGIL;
-import de.neo8.jagil.gui.GuiTypes;
+import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.ui.components.UIComponent;
 import de.neo8.jagil.util.InventoryPosition;
 import de.neo8.jagil.util.ParseUtil;
@@ -30,8 +30,8 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
     }
 
     @Override
-    public GuiTypes.DataGui read(String content) throws RuntimeException {
-        GuiTypes.DataGui gui = new GuiTypes.DataGui();
+    public InventoryGuiTypes.DataGui read(String content) throws RuntimeException {
+        InventoryGuiTypes.DataGui gui = new InventoryGuiTypes.DataGui();
         JsonObject json = new Gson().fromJson(content, JsonObject.class);
 
         // Unknown fileVersion
@@ -64,9 +64,9 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
     }
 
     @Override
-    public void parseItem(GuiTypes.DataGui gui, JsonObject json) {
+    public void parseItem(InventoryGuiTypes.DataGui gui, JsonObject json) {
         JsonObject jsonItem = json.getAsJsonObject();
-        GuiTypes.GuiItem item = new GuiTypes.GuiItem();
+        InventoryGuiTypes.GuiItem item = new InventoryGuiTypes.GuiItem();
 
         item.id = ParseUtil.getJsonString(jsonItem, "id");
 
@@ -112,7 +112,7 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         if (jsonItem.has("enchantments")) {
             for (JsonElement enchantElem : jsonItem.get("enchantments").getAsJsonArray()) {
                 JsonObject enchJson = enchantElem.getAsJsonObject();
-                GuiTypes.GuiEnchantment enchantment = new GuiTypes.GuiEnchantment();
+                InventoryGuiTypes.GuiEnchantment enchantment = new InventoryGuiTypes.GuiEnchantment();
                 enchantment.enchantment =
                         RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream()
                                 .filter(it -> enchJson.get("name").getAsString().equalsIgnoreCase(it.toString()))
@@ -133,7 +133,7 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         if (jsonItem.has("animation")) {
             for (JsonElement animElem : jsonItem.get("animation").getAsJsonArray()) {
                 JsonObject animFrame = animElem.getAsJsonObject();
-                GuiTypes.GuiAnimationFrame frame = new GuiTypes.GuiAnimationFrame();
+                InventoryGuiTypes.GuiAnimationFrame frame = new InventoryGuiTypes.GuiAnimationFrame();
                 frame.itemId = animFrame.has("itemId") ? animFrame.get("itemId").getAsString() : item.id;
                 frame.position = animFrame.has("pos") ?
                         ParseUtil.getJsonPosition(animFrame, "pos") : InventoryPosition.fromSlot(item.slot);
@@ -168,7 +168,7 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
                         applyFillObject(gui, item, fillElem.getAsJsonObject());
                     } else if (fillElem.isJsonPrimitive()) {
                         int slot = fillElem.getAsInt();
-                        GuiTypes.GuiItem item2 = new GuiTypes.GuiItem(item);
+                        InventoryGuiTypes.GuiItem item2 = new InventoryGuiTypes.GuiItem(item);
                         item2.slot = slot;
                         gui.items.put(slot, item2);
                     } else {
@@ -180,28 +180,28 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
     }
 
     @Override
-    public void parseUIComponent(GuiTypes.DataGui gui, JsonObject jsonUi) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public void parseUIComponent(InventoryGuiTypes.DataGui gui, JsonObject jsonUi) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         UIComponent component = ParseUtil.getUIComponent(jsonUi.get("type").getAsString(), jsonUi);
         gui.ui.put(component.getId(), component);
     }
 
-    public void parseUI(GuiTypes.DataGui gui, JsonObject json) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public void parseUI(InventoryGuiTypes.DataGui gui, JsonObject json) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         for (JsonElement elem : json.get("ui").getAsJsonArray()) {
             parseUIComponent(gui, elem.getAsJsonObject());
         }
     }
 
-    public void parseItems(GuiTypes.DataGui gui, JsonObject json) {
+    public void parseItems(InventoryGuiTypes.DataGui gui, JsonObject json) {
         for (JsonElement elem : json.get("items").getAsJsonArray()) {
             parseItem(gui, elem.getAsJsonObject());
         }
     }
 
-    private void applyFillObject(GuiTypes.DataGui gui, GuiTypes.GuiItem item, JsonObject fillObject) {
+    private void applyFillObject(InventoryGuiTypes.DataGui gui, InventoryGuiTypes.GuiItem item, JsonObject fillObject) {
         int from = fillObject.get("from").getAsInt();
         int to = fillObject.get("to").getAsInt();
         for (int i = from; i <= to; i++) {
-            GuiTypes.GuiItem item2 = new GuiTypes.GuiItem(item);
+            InventoryGuiTypes.GuiItem item2 = new InventoryGuiTypes.GuiItem(item);
             item2.slot = i;
             gui.items.put(i, item2);
         }

@@ -1,7 +1,7 @@
 package de.neo8.jagil.ui.prebuilt;
 
 import com.google.gson.JsonObject;
-import de.neo8.jagil.gui.GuiTypes;
+import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.ui.UIRenderPlainProvider;
 import de.neo8.jagil.ui.components.Clickable;
 import de.neo8.jagil.ui.components.JsonParsable;
@@ -74,15 +74,15 @@ public class Button implements UIComponent, Clickable, JsonParsable {
     @Override
     public void render(UIRenderPlainProvider<?> renderPlainProvider) {
         Object renderPlain = renderPlainProvider.getRenderPlain();
-        if (renderPlain instanceof GuiTypes.DataGui gui) {
+        if (renderPlain instanceof InventoryGuiTypes.DataGui gui) {
             boolean renderBorder = size.width >= 3 && size.height >= 3 && border;
             // Render inner button
-            GuiTypes.GuiItem innerItem = new GuiTypes.GuiItem();
+            InventoryGuiTypes.GuiItem innerItem = new InventoryGuiTypes.GuiItem();
             innerItem.material = material;
             innerItem.amount = 1;
             for (int i = 0; i < size.height; i++) {
                 for (int j = 0; j < size.width; j++) {
-                    GuiTypes.GuiItem copy = new GuiTypes.GuiItem(innerItem);
+                    InventoryGuiTypes.GuiItem copy = new InventoryGuiTypes.GuiItem(innerItem);
                     int slot = InventoryPositionUtil.toSlot(j, i);
                     copy.slot = slot;
                     if (renderBorder) {

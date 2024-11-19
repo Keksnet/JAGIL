@@ -1,8 +1,8 @@
 package de.neo8.jagil.manager;
 
 import de.neo8.jagil.exception.JAGILException;
-import de.neo8.jagil.gui.GUI;
-import de.neo8.jagil.gui.GuiTypes;
+import de.neo8.jagil.gui.inventory.InventoryGui;
+import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.reader.GuiReader;
 
 import java.io.IOException;
@@ -34,12 +34,12 @@ public class GuiReaderManager {
     }
 
     /**
-     * Loads a full {@link GUI} from a file
+     * Loads a full {@link InventoryGui} from a file
      *
      * @param file the file to load from
-     * @return the {@link GuiTypes.DataGui}
+     * @return the {@link InventoryGuiTypes.DataGui}
      */
-    public GuiTypes.DataGui readFile(Path file) throws IOException {
+    public InventoryGuiTypes.DataGui readFile(Path file) throws IOException {
         String content = Files.readString(file);
         GuiReader<?> reader = GuiReaderManager.getInstance().getReader(file, content);
         return reader.read(content);

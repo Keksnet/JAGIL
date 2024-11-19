@@ -3,7 +3,7 @@ package de.neo8.jagil.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.neo8.jagil.annotation.Internal;
-import de.neo8.jagil.gui.GuiTypes;
+import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.ui.components.JsonParsable;
 import de.neo8.jagil.ui.components.UIComponent;
 import net.kyori.adventure.text.Component;
@@ -50,7 +50,7 @@ public class ParseUtil {
     }
 
     @Internal
-    public static int getAutoSlotId(GuiTypes.DataGui gui) {
+    public static int getAutoSlotId(InventoryGuiTypes.DataGui gui) {
         for (int i = -1; i > -999; i--) {
             if (gui.items.containsKey(i)) continue;
             return i;
@@ -93,17 +93,17 @@ public class ParseUtil {
     }
 
     @Internal
-    public static GuiTypes.MessageFormat getMessageFormat(JsonObject json, String key) {
+    public static InventoryGuiTypes.MessageFormat getMessageFormat(JsonObject json, String key) {
         String messageFormat = getJsonStringOrNull(json, key);
-        if (messageFormat == null || !Arrays.stream(GuiTypes.MessageFormat.values()).anyMatch((x) -> x.name().equalsIgnoreCase(messageFormat))) {
-            return GuiTypes.MessageFormat.MINI_MESSAGE;
+        if (messageFormat == null || !Arrays.stream(InventoryGuiTypes.MessageFormat.values()).anyMatch((x) -> x.name().equalsIgnoreCase(messageFormat))) {
+            return InventoryGuiTypes.MessageFormat.MINI_MESSAGE;
         }
 
-        return GuiTypes.MessageFormat.valueOf(messageFormat);
+        return InventoryGuiTypes.MessageFormat.valueOf(messageFormat);
     }
 
     @Internal
-    public static Component getAsComponent(GuiTypes.DataGui gui, JsonElement jsonElement) {
+    public static Component getAsComponent(InventoryGuiTypes.DataGui gui, JsonElement jsonElement) {
         ComponentSerializer<Component, ? extends Component, String> serializer;
         switch (gui.messageFormat) {
             case MINI_MESSAGE -> serializer = MiniMessage.miniMessage();

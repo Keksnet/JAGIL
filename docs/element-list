@@ -2,7 +2,8 @@ de.neo8.jagil
 de.neo8.jagil.annotation
 de.neo8.jagil.exception
 de.neo8.jagil.gui
-de.neo8.jagil.gui.prebuild
+de.neo8.jagil.gui.inventory
+de.neo8.jagil.gui.inventory.prebuild
 de.neo8.jagil.handler
 de.neo8.jagil.listener
 de.neo8.jagil.manager

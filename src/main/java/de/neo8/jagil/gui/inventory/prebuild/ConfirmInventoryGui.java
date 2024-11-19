@@ -1,6 +1,6 @@
-package de.neo8.jagil.gui.prebuild;
+package de.neo8.jagil.gui.inventory.prebuild;
 
-import de.neo8.jagil.gui.GUI;
+import de.neo8.jagil.gui.inventory.InventoryGui;
 import de.neo8.jagil.handler.CommandConfirmationHandler;
 import de.neo8.jagil.handler.ConfirmationHandler;
 import de.neo8.jagil.util.ItemTool;
@@ -11,7 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-public class ConfirmGUI extends GUI {
+public class ConfirmInventoryGui extends InventoryGui {
 
     private final static String DEFAULT_CONFIRM_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTkyZTMxZmZiNTljOTBhYjA4ZmM5ZGMxZmUyNjgwMjAzNWEzYTQ3YzQyZmVlNjM0MjNiY2RiNDI2MmVjYjliNiJ9fX0=";
     private final static String DEFAULT_CANCEL_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmViNTg4YjIxYTZmOThhZDFmZjRlMDg1YzU1MmRjYjA1MGVmYzljYWI0MjdmNDYwNDhmMThmYzgwMzQ3NWY3In19fQ==";
@@ -31,11 +31,11 @@ public class ConfirmGUI extends GUI {
 
     private final ConfirmationHandler handler;
 
-    public ConfirmGUI(Component question, String acceptCommand, OfflinePlayer player) {
+    public ConfirmInventoryGui(Component question, String acceptCommand, OfflinePlayer player) {
         this(question, acceptCommand, null, player);
     }
 
-    public ConfirmGUI(Component question, String acceptCommand, String declineCommand, OfflinePlayer player) {
+    public ConfirmInventoryGui(Component question, String acceptCommand, String declineCommand, OfflinePlayer player) {
         super(question, 9, player);
         this.handler = new CommandConfirmationHandler(acceptCommand, declineCommand);
         this.confirmTexture = DEFAULT_CONFIRM_TEXTURE;
@@ -44,7 +44,7 @@ public class ConfirmGUI extends GUI {
         this.declineItemText = LegacyComponentSerializer.legacySection().deserialize("§cNo");
     }
 
-    public ConfirmGUI(Component question, ConfirmationHandler handler, OfflinePlayer player) {
+    public ConfirmInventoryGui(Component question, ConfirmationHandler handler, OfflinePlayer player) {
         super(question, 9, player);
         this.handler = handler;
         this.confirmTexture = DEFAULT_CONFIRM_TEXTURE;

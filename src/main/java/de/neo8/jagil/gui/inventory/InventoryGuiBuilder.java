@@ -1,4 +1,4 @@
-package de.neo8.jagil.gui;
+package de.neo8.jagil.gui.inventory;
 
 import de.neo8.jagil.exception.BuildException;
 import net.kyori.adventure.text.Component;
@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class GuiBuilder {
+public class InventoryGuiBuilder {
 
     private boolean fromXml;
     private boolean universal;
@@ -27,60 +27,60 @@ public class GuiBuilder {
     private InventoryType type;
 
     // Vars for events
-    private Consumer<GUI> fill;
-    private Function<GUI, Boolean> handle;
-    private Consumer<GUI> handleLater;
-    private Function<GUI, Boolean> drag;
-    private Consumer<GUI> dragLater;
-    private Consumer<GUI> close;
-    private Function<GUI, Boolean> defaultCancel;
-    private Consumer<GUI> customConstructorCallback;
+    private Consumer<InventoryGui> fill;
+    private Function<InventoryGui, Boolean> handle;
+    private Consumer<InventoryGui> handleLater;
+    private Function<InventoryGui, Boolean> drag;
+    private Consumer<InventoryGui> dragLater;
+    private Consumer<InventoryGui> close;
+    private Function<InventoryGui, Boolean> defaultCancel;
+    private Consumer<InventoryGui> customConstructorCallback;
 
-    public GuiBuilder() {
+    public InventoryGuiBuilder() {
         this(false, false);
     }
 
-    public GuiBuilder(boolean fromXml, boolean universal) {
+    public InventoryGuiBuilder(boolean fromXml, boolean universal) {
         this.fromXml = fromXml;
         this.universal = universal;
     }
 
-    public GuiBuilder setXmlMode(boolean fromXml) {
+    public InventoryGuiBuilder setXmlMode(boolean fromXml) {
         this.fromXml = fromXml;
         return this;
     }
 
-    public GuiBuilder setUniversalMode(boolean universal) {
+    public InventoryGuiBuilder setUniversalMode(boolean universal) {
         this.universal = universal;
         return this;
     }
 
-    public GuiBuilder forPlayer(OfflinePlayer p) {
+    public InventoryGuiBuilder forPlayer(OfflinePlayer p) {
         if (p == null) throw new BuildException("Player cannot be null!");
         if (universal) throw new BuildException("Cannot set player for universal GUI!");
         this.p = p;
         return this;
     }
 
-    public GuiBuilder setGuiFile(String guiFile) {
+    public InventoryGuiBuilder setGuiFile(String guiFile) {
         if (!fromXml) throw new BuildException("Cannot set xml file for normal GUI!");
         this.guiFile = guiFile;
         return this;
     }
 
-    public GuiBuilder setGuiFilePath(Path guiFilePath) {
+    public InventoryGuiBuilder setGuiFilePath(Path guiFilePath) {
         if (!fromXml) throw new BuildException("Cannot set xml path for normal GUI!");
         this.guiFilePath = guiFilePath;
         return this;
     }
 
-    public GuiBuilder withTitle(Component title) {
+    public InventoryGuiBuilder withTitle(Component title) {
         if (fromXml) throw new BuildException("Cannot set title for xml GUI!");
         this.title = title;
         return this;
     }
 
-    public GuiBuilder withSize(int size) {
+    public InventoryGuiBuilder withSize(int size) {
         if (fromXml) throw new BuildException("Cannot set size for xml GUI!");
         if (size < 1 || size > 54) throw new BuildException("Size must be between 1 and 54!");
         if (size % 9 != 0) throw new BuildException("Size must be a multiple of 9!");
@@ -88,61 +88,61 @@ public class GuiBuilder {
         return this;
     }
 
-    public GuiBuilder withType(InventoryType type) {
+    public InventoryGuiBuilder withType(InventoryType type) {
         if (fromXml) throw new BuildException("Cannot set type for xml GUI!");
         this.type = type;
         return this;
     }
 
-    public GuiBuilder onFill(Consumer<GUI> fill) {
+    public InventoryGuiBuilder onFill(Consumer<InventoryGui> fill) {
         if (fill == null) throw new BuildException("Fill cannot be null!");
         this.fill = fill;
         return this;
     }
 
-    public GuiBuilder onClick(Function<GUI, Boolean> handle) {
+    public InventoryGuiBuilder onClick(Function<InventoryGui, Boolean> handle) {
         if (handle == null) throw new BuildException("handle cannot be null!");
         this.handle = handle;
         return this;
     }
 
-    public GuiBuilder afterClick(Consumer<GUI> handleLater) {
+    public InventoryGuiBuilder afterClick(Consumer<InventoryGui> handleLater) {
         if (handleLater == null) throw new BuildException("handleLater cannot be null!");
         this.handleLater = handleLater;
         return this;
     }
 
-    public GuiBuilder onDrag(Function<GUI, Boolean> drag) {
+    public InventoryGuiBuilder onDrag(Function<InventoryGui, Boolean> drag) {
         if (drag == null) throw new BuildException("drag cannot be null!");
         this.drag = drag;
         return this;
     }
 
-    public GuiBuilder afterDrag(Consumer<GUI> dragLater) {
+    public InventoryGuiBuilder afterDrag(Consumer<InventoryGui> dragLater) {
         if (dragLater == null) throw new BuildException("dragLater cannot be null!");
         this.dragLater = dragLater;
         return this;
     }
 
-    public GuiBuilder onClose(Consumer<GUI> close) {
+    public InventoryGuiBuilder onClose(Consumer<InventoryGui> close) {
         if (close == null) throw new BuildException("close cannot be null!");
         this.close = close;
         return this;
     }
 
-    public GuiBuilder withDefaultCancel(Function<GUI, Boolean> defaultCancel) {
+    public InventoryGuiBuilder withDefaultCancel(Function<InventoryGui, Boolean> defaultCancel) {
         if (defaultCancel == null) throw new BuildException("defaultCancel cannot be null!");
         this.defaultCancel = defaultCancel;
         return this;
     }
 
-    public GuiBuilder onConstruct(Consumer<GUI> customConstructorCallback) {
+    public InventoryGuiBuilder onConstruct(Consumer<InventoryGui> customConstructorCallback) {
         if (customConstructorCallback == null) throw new BuildException("customConstructorCallback cannot be null!");
         this.customConstructorCallback = customConstructorCallback;
         return this;
     }
 
-    public GUI build() {
+    public InventoryGui build() {
         if (!universal) {
             if (p == null) throw new BuildException("Player cannot be null!");
         }
