@@ -11,4 +11,9 @@ public interface InventoryAnimatable {
      */
     void animate(long tick, AtomicInteger atomicLastItem);
 
+    /**
+     * Terminates the animation task. This causes the animation to be stopped.
+     */
+    void cancelAnimationTask();
+
 }

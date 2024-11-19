@@ -1,6 +1,6 @@
 package de.neo8.jagil;
 
-import de.neo8.jagil.listener.GUIListener;
+import de.neo8.jagil.listener.InventoryListener;
 import de.neo8.jagil.manager.GuiReaderManager;
 import de.neo8.jagil.reader.JsonGuiReader;
 import de.neo8.jagil.reader.XmlGuiReader;
@@ -46,7 +46,7 @@ public class JAGIL {
         PluginMeta pluginMeta = plugin.getPluginMeta();
         plugin.getLogger().info("Registered JAGIL from " + pluginMeta.getName() + " " + pluginMeta.getVersion());
 
-        Bukkit.getPluginManager().registerEvents(new GUIListener(plugin), plugin);
+        Bukkit.getPluginManager().registerEvents(new InventoryListener(plugin), plugin);
     }
 
     public static Logger getLogger() {

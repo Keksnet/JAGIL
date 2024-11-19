@@ -329,6 +329,7 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
         getPlayer().updateInventory();
     }
 
+    @Override
     @Internal
     public final boolean handleInternal(InventoryClickEvent e) {
         if (System.currentTimeMillis() - this.lastInteraction <= this.interactionCooldown) {
@@ -422,4 +423,14 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
         return true;
     }
 
+    /**
+     * Terminates the animation task. This causes the animation to be stopped.
+     */
+    @Override
+    public void cancelAnimationTask() {
+        if (this.animationTaskId == -1) {
+            Bukkit.getScheduler().cancelTask(this.animationTaskId);
+        }
+        this.animationTaskId = -1;
+    }
 }

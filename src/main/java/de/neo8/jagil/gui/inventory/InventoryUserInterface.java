@@ -65,6 +65,11 @@ public interface InventoryUserInterface extends UserInterface, InventoryHolder {
     void handleClose(InventoryCloseEvent event);
 
     /**
+     * This method is internal and SHOULD NOT be used by plugins.
+     */
+    boolean handleInternal(InventoryClickEvent event);
+
+    /**
      * Returns if the event should be cancelled by default.
      *
      * @return the default cancel-value

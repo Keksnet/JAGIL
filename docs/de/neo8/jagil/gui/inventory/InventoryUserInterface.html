@@ -146,19 +146,24 @@ extends <a href="../UserInterface.html" title="interface in de.neo8.jagil.gui">U
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Like <a href="#handleDrag(org.bukkit.event.inventory.InventoryDragEvent)"><code>handleDrag(InventoryDragEvent)</code></a> but optional and one tick later.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#handleLast(org.bukkit.event.inventory.InventoryClickEvent)" class="member-name-link">handleLast</a><wbr>(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#handleInternal(org.bukkit.event.inventory.InventoryClickEvent)" class="member-name-link">handleInternal</a><wbr>(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">This method is internal and SHOULD NOT be used by plugins.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#handleLast(org.bukkit.event.inventory.InventoryClickEvent)" class="member-name-link">handleLast</a><wbr>(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Like <a href="InventoryGui.html#handle(org.bukkit.event.inventory.InventoryClickEvent)"><code>InventoryGui.handle(InventoryClickEvent)</code></a> but optional and one tick later.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#isCancelledByDefault()" class="member-name-link">isCancelledByDefault</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#isCancelledByDefault()" class="member-name-link">isCancelledByDefault</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns if the event should be cancelled by default.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#render()" class="member-name-link">render</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#render()" class="member-name-link">render</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">This method should contain code to render the interface of this <a href="../UserInterface.html" title="interface in de.neo8.jagil.gui"><code>UserInterface</code></a>.</div>
 </div>
 </div>
@@ -264,6 +269,13 @@ extends <a href="../UserInterface.html" title="interface in de.neo8.jagil.gui">U
 <dt>Parameters:</dt>
 <dd><code>event</code> - the fired <code>InventoryClickEvent</code></dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="handleInternal(org.bukkit.event.inventory.InventoryClickEvent)">
+<h3>handleInternal</h3>
+<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">handleInternal</span><wbr><span class="parameters">(org.bukkit.event.inventory.InventoryClickEvent&nbsp;event)</span></div>
+<div class="block">This method is internal and SHOULD NOT be used by plugins.</div>
 </section>
 </li>
 <li>
