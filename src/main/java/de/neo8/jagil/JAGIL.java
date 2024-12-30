@@ -1,7 +1,7 @@
 package de.neo8.jagil;
 
 import de.neo8.jagil.listener.InventoryListener;
-import de.neo8.jagil.manager.GuiReaderManager;
+import de.neo8.jagil.reader.GuiReaderManager;
 import de.neo8.jagil.reader.JsonGuiReader;
 import de.neo8.jagil.reader.XmlGuiReader;
 import de.neo8.jagil.util.GlobalJAGILConfig;
@@ -32,8 +32,8 @@ public class JAGIL {
                 .debugMode(false)
                 .build();
 
-        GuiReaderManager.getInstance().register(new JsonGuiReader());
-        GuiReaderManager.getInstance().register(new XmlGuiReader());
+        GuiReaderManager.getInstance().register(JsonGuiReader.Provider.getInstance());
+        GuiReaderManager.getInstance().register(XmlGuiReader.Provider.getInstance());
     }
 
     /**

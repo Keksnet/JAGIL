@@ -1,10 +1,14 @@
 package de.neo8.jagil.reader;
 
+import de.neo8.jagil.JAGIL;
 import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.util.ParseUtil;
+import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.jetbrains.annotations.NotNull;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -21,18 +25,13 @@ import java.util.Arrays;
 
 /**
  * This class implements the {@link GuiReader} for xml.
- * It is deprecated and does not support {@link #parseItem(InventoryGuiTypes.DataGui, Void)} and {@link #parseItem(InventoryGuiTypes.DataGui, Void)}
+ * It is deprecated and does not support {@link #getTagContext()}
  * Removal planned for v5. Convert your existing xml files to json using /convert xml json (JAGIL-Loader only)
  *
  * @deprecated use {@link JsonGuiReader} instead. marked as for removal in v5.
  */
 @Deprecated(forRemoval = true)
 public class XmlGuiReader implements GuiReader<Void> {
-
-    @Override
-    public boolean supportsFile(Path filePath, String content) {
-        return filePath.getFileName().toString().endsWith(".xml");
-    }
 
     @Override
     public InventoryGuiTypes.DataGui read(String content) throws IOException {
@@ -133,7 +132,7 @@ public class XmlGuiReader implements GuiReader<Void> {
                         case XMLStreamConstants.END_ELEMENT:
                             EndElement endElement = event.asEndElement();
                             if (endElement.getName().getLocalPart().equalsIgnoreCase("item")) {
-                                gui.items.put(item.slot, item);
+                                gui.items.put(item.id, item);
                             } else if (endElement.getName().getLocalPart().equalsIgnoreCase("enchantment")) {
                                 item.enchantments.add(enchantment);
                             }
@@ -152,12 +151,30 @@ public class XmlGuiReader implements GuiReader<Void> {
     }
 
     @Override
-    public void parseItem(InventoryGuiTypes.DataGui gui, Void ignore) throws UnsupportedOperationException {
+    public TagResolver getTagContext() {
         throw new UnsupportedOperationException("not supported by XmlGuiReader");
     }
 
-    @Override
-    public void parseUIComponent(InventoryGuiTypes.DataGui gui, Void ignore) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("not supported by XmlGuiReader");
+    public static class Provider implements GuiReaderProvider<XmlGuiReader> {
+
+        @Getter
+        private final static Provider instance = new Provider();
+
+        private Provider() {
+        }
+
+        @Override
+        public boolean supportsFile(@NotNull Path filePath, @NotNull String content) {
+            return filePath.getFileName().toString().endsWith(".xml");
+        }
+
+        @Override
+        public @NotNull XmlGuiReader getReader(@NotNull TagResolver ignore) {
+            if (ignore != null) {
+                JAGIL.getLogger().warning("TagResolver will be ignore in XmlGuiReader.");
+            }
+
+            return new XmlGuiReader();
+        }
     }
 }

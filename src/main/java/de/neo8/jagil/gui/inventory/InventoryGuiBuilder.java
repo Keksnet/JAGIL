@@ -2,7 +2,7 @@ package de.neo8.jagil.gui.inventory;
 
 import de.neo8.jagil.exception.BuildException;
 import net.kyori.adventure.text.Component;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 
 import java.nio.file.Path;
@@ -15,7 +15,7 @@ public class InventoryGuiBuilder {
     private boolean universal;
 
     // Vars for non-universal
-    private OfflinePlayer p;
+    private Player p;
 
     // Vars for Xml
     private String guiFile;
@@ -55,7 +55,7 @@ public class InventoryGuiBuilder {
         return this;
     }
 
-    public InventoryGuiBuilder forPlayer(OfflinePlayer p) {
+    public InventoryGuiBuilder forPlayer(Player p) {
         if (p == null) throw new BuildException("Player cannot be null!");
         if (universal) throw new BuildException("Cannot set player for universal GUI!");
         this.p = p;

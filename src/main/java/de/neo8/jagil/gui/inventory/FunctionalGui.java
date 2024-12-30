@@ -1,14 +1,14 @@
 package de.neo8.jagil.gui.inventory;
 
-import de.neo8.jagil.manager.GuiReaderManager;
+import de.neo8.jagil.exception.JAGILException;
+import de.neo8.jagil.reader.GuiReaderManager;
 import net.kyori.adventure.text.Component;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,17 +32,17 @@ public class FunctionalGui extends InventoryGui {
                             Consumer<InventoryGui> handleLastMethod, Function<InventoryGui, Boolean> handleDragMethod,
                             Consumer<InventoryGui> handleDragLastMethod, Consumer<InventoryGui> handleCloseMethod,
                             Function<InventoryGui, Boolean> cancelDefault, Consumer<InventoryGui> customConstructorCallback)
-            throws XMLStreamException, IOException {
+            throws IOException {
         this(Paths.get(guiFile), fillMethod, handleMethod, handleLastMethod, handleDragMethod, handleDragLastMethod,
                 handleCloseMethod, cancelDefault, customConstructorCallback);
     }
 
-    protected FunctionalGui(String guiFile, OfflinePlayer p, Consumer<InventoryGui> fillMethod,
+    protected FunctionalGui(String guiFile, Player p, Consumer<InventoryGui> fillMethod,
                             Function<InventoryGui, Boolean> handleMethod, Consumer<InventoryGui> handleLastMethod,
                             Function<InventoryGui, Boolean> handleDragMethod, Consumer<InventoryGui> handleDragLastMethod,
                             Consumer<InventoryGui> handleCloseMethod, Function<InventoryGui, Boolean> cancelDefault,
                             Consumer<InventoryGui> customConstructorCallback)
-            throws XMLStreamException, IOException {
+            throws IOException {
         this(Paths.get(guiFile), p, fillMethod, handleMethod, handleLastMethod, handleDragMethod, handleDragLastMethod,
                 handleCloseMethod, cancelDefault, customConstructorCallback);
     }
@@ -51,8 +51,8 @@ public class FunctionalGui extends InventoryGui {
                             Consumer<InventoryGui> handleLastMethod, Function<InventoryGui, Boolean> handleDragMethod,
                             Consumer<InventoryGui> handleDragLastMethod, Consumer<InventoryGui> handleCloseMethod,
                             Function<InventoryGui, Boolean> cancelDefault, Consumer<InventoryGui> customConstructorCallback)
-            throws XMLStreamException, IOException {
-        super(GuiReaderManager.getInstance().readFile(guiFile));
+            throws IOException {
+        super(GuiReaderManager.getInstance().readFile(guiFile, null));
         this.fill = fillMethod;
         this.handle = handleMethod;
         this.handleLater = handleLastMethod;
@@ -63,13 +63,13 @@ public class FunctionalGui extends InventoryGui {
         executeCallback(customConstructorCallback);
     }
 
-    protected FunctionalGui(Path guiFile, OfflinePlayer p, Consumer<InventoryGui> fillMethod,
+    protected FunctionalGui(Path guiFile, Player p, Consumer<InventoryGui> fillMethod,
                             Function<InventoryGui, Boolean> handleMethod, Consumer<InventoryGui> handleLastMethod,
                             Function<InventoryGui, Boolean> handleDragMethod, Consumer<InventoryGui> handleDragLastMethod,
                             Consumer<InventoryGui> handleCloseMethod, Function<InventoryGui, Boolean> cancelDefault,
                             Consumer<InventoryGui> customConstructorCallback)
-            throws XMLStreamException, IOException {
-        super(GuiReaderManager.getInstance().readFile(guiFile), p);
+            throws IOException {
+        super(GuiReaderManager.getInstance().readFile(guiFile, null), p);
         this.fill = fillMethod;
         this.handle = handleMethod;
         this.handleLater = handleLastMethod;
@@ -95,7 +95,7 @@ public class FunctionalGui extends InventoryGui {
         executeCallback(customConstructorCallback);
     }
 
-    protected FunctionalGui(Component name, int size, OfflinePlayer p, Consumer<InventoryGui> fillMethod,
+    protected FunctionalGui(Component name, int size, Player p, Consumer<InventoryGui> fillMethod,
                             Function<InventoryGui, Boolean> handleMethod, Consumer<InventoryGui> handleLastMethod,
                             Function<InventoryGui, Boolean> handleDragMethod, Consumer<InventoryGui> handleDragLastMethod,
                             Consumer<InventoryGui> handleCloseMethod, Function<InventoryGui, Boolean> cancelDefault,
@@ -127,7 +127,7 @@ public class FunctionalGui extends InventoryGui {
         executeCallback(customConstructorCallback);
     }
 
-    protected FunctionalGui(Component name, InventoryType type, OfflinePlayer p, Consumer<InventoryGui> fillMethod,
+    protected FunctionalGui(Component name, InventoryType type, Player p, Consumer<InventoryGui> fillMethod,
                             Function<InventoryGui, Boolean> handleMethod, Consumer<InventoryGui> handleLastMethod,
                             Function<InventoryGui, Boolean> handleDragMethod, Consumer<InventoryGui> handleDragLastMethod,
                             Consumer<InventoryGui> handleCloseMethod, Function<InventoryGui, Boolean> cancelDefault,
@@ -149,7 +149,7 @@ public class FunctionalGui extends InventoryGui {
         try {
             cancel = callback.apply(this);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new JAGILException("Exception occurred in FunctionalGui", e);
         }
         return cancel;
     }
@@ -159,7 +159,7 @@ public class FunctionalGui extends InventoryGui {
         try {
             callback.accept(this);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new JAGILException("Exception occurred in FunctionalGui", e);
         }
     }
 

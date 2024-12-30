@@ -26,7 +26,7 @@ dependencies {
 }
 
 group = "de.neo8.jagil"
-version = "4.0-beta.12"
+version = "4.0-beta.32"
 description = "JAGIL"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
@@ -42,8 +42,8 @@ publishing {
 
     repositories {
         maven {
-            name = "neo8ftp"
-            url = uri("ftpes://repo.neo8.de:21/repo/")
+            name = "keksServerRepositorySnapshots"
+            url = uri("https://repo.keks-server.de/snapshots")
             credentials(PasswordCredentials::class)
         }
     }

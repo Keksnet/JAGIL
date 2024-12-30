@@ -6,8 +6,8 @@ de.neo8.jagil.gui.inventory
 de.neo8.jagil.gui.inventory.prebuild
 de.neo8.jagil.handler
 de.neo8.jagil.listener
-de.neo8.jagil.manager
 de.neo8.jagil.reader
+de.neo8.jagil.reader.builtin
 de.neo8.jagil.ui
 de.neo8.jagil.ui.components
 de.neo8.jagil.ui.impl

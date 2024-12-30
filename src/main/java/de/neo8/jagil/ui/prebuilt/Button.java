@@ -2,7 +2,7 @@ package de.neo8.jagil.ui.prebuilt;
 
 import com.google.gson.JsonObject;
 import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
-import de.neo8.jagil.ui.UIRenderPlainProvider;
+import de.neo8.jagil.ui.UIRenderPaneProvider;
 import de.neo8.jagil.ui.components.Clickable;
 import de.neo8.jagil.ui.components.JsonParsable;
 import de.neo8.jagil.ui.components.UIComponent;
@@ -72,8 +72,8 @@ public class Button implements UIComponent, Clickable, JsonParsable {
     }
 
     @Override
-    public void render(UIRenderPlainProvider<?> renderPlainProvider) {
-        Object renderPlain = renderPlainProvider.getRenderPlain();
+    public void render(UIRenderPaneProvider<?> renderPlainProvider) {
+        Object renderPlain = renderPlainProvider.getRenderPane();
         if (renderPlain instanceof InventoryGuiTypes.DataGui gui) {
             boolean renderBorder = size.width >= 3 && size.height >= 3 && border;
             // Render inner button
@@ -85,13 +85,18 @@ public class Button implements UIComponent, Clickable, JsonParsable {
                     InventoryGuiTypes.GuiItem copy = new InventoryGuiTypes.GuiItem(innerItem);
                     int slot = InventoryPositionUtil.toSlot(j, i);
                     copy.slot = slot;
+                    if (copy.id == null) {
+                        copy.id = "gen-slot-" + copy.slot;
+                        copy.generatedId = true;
+                    }
+
                     if (renderBorder) {
                         if (i == 0 || i == size.height - 1 || j == 0 || j == size.width - 1) {
                             // Render button
                             copy.material = borderMaterial;
                         }
                     }
-                    gui.items.put(slot, copy);
+                    gui.items.put(copy.id, copy);
                 }
             }
         }
@@ -99,6 +104,6 @@ public class Button implements UIComponent, Clickable, JsonParsable {
 
     @Override
     public void click(UIAction<?> click) {
-        click.getEntity().sendMessage("Button clicked!");
+        click.entity().sendMessage("Button clicked!");
     }
 }

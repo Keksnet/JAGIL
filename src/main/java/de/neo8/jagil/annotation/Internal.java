@@ -10,12 +10,4 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD, ElementType.PACKAGE, ElementType.CONSTRUCTOR, ElementType.ANNOTATION_TYPE, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Internal {
-
-    /**
-     * Is it planned to change the visibility of the object?
-     *
-     * @return is it planned to change the visibility of the object?
-     */
-    boolean forVisibilityChange() default false;
-
 }

@@ -2,7 +2,7 @@ package de.neo8.jagil.listener;
 
 import de.neo8.jagil.JAGIL;
 import de.neo8.jagil.annotation.Internal;
-import de.neo8.jagil.gui.inventory.InventoryAnimatable;
+import de.neo8.jagil.gui.inventory.AnimatedInventory;
 import de.neo8.jagil.gui.inventory.InventoryUserInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -117,7 +117,7 @@ public class InventoryListener implements Listener {
             }
         }
 
-        if (inventoryGui instanceof InventoryAnimatable animatableInventory) {
+        if (inventoryGui instanceof AnimatedInventory animatableInventory) {
             animatableInventory.cancelAnimationTask();
         }
 

@@ -3,31 +3,38 @@ package de.neo8.jagil.gui.inventory;
 import de.neo8.jagil.JAGIL;
 import de.neo8.jagil.annotation.Internal;
 import de.neo8.jagil.annotation.OptionalImplementation;
-import de.neo8.jagil.annotation.UnstableFeature;
-import de.neo8.jagil.ui.UIRenderPlainProvider;
+import de.neo8.jagil.annotation.UserInterfaceByFile;
+import de.neo8.jagil.exception.JAGILException;
+import de.neo8.jagil.gui.UserInterfaceContextHolder;
+import de.neo8.jagil.reader.GuiReaderManager;
 import de.neo8.jagil.ui.UISystem;
 import de.neo8.jagil.ui.components.Clickable;
-import de.neo8.jagil.ui.impl.GuiUISystem;
+import de.neo8.jagil.ui.impl.InventoryUiSystem;
 import de.neo8.jagil.ui.impl.UIAction;
 import de.neo8.jagil.util.InventoryPosition;
+import de.neo8.jagil.util.Pair;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 /**
  * Represents a {@link InventoryGui}.
@@ -36,7 +43,8 @@ import java.util.logging.Logger;
  * @author Neo8
  * @version 4.0
  */
-public class InventoryGui implements InventoryUserInterface, InventoryAnimatable {
+@EqualsAndHashCode
+public class InventoryGui implements InventoryUserInterface, AnimatedInventory {
 
     @Setter
     @Getter
@@ -44,6 +52,9 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
 
     @Getter
     private int size;
+
+    @Getter
+    private InventoryType type;
 
     @Getter
     private Inventory inventory;
@@ -55,15 +66,49 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
     @Getter
     private long interactionCooldown;
 
+    @Getter
+    private Player player;
+
     public int animationTaskId;
     protected HashMap<String, Integer> itemIds;
-    private InventoryType type;
-    private OfflinePlayer offlinePlayer;
-    private UISystem uiSystem;
+    private UISystem<InventoryGuiTypes.DataGui> uiSystem;
     private long lastInteraction;
 
     {
-        interactionCooldown = 50;
+        this.interactionCooldown = 50;
+    }
+
+    /**
+     * Creates a new instance of the {@link InventoryGui} class.
+     * Use this constructor if you have annotated your class with {@link UserInterfaceByFile}.
+     * Use this constructor when you like to create a non-universal {@link InventoryGui}.
+     *
+     * @param player {@link Player} that should see this {@link Inventory}
+     */
+    public InventoryGui(Player player) {
+        if (!getClass().isAnnotationPresent(UserInterfaceByFile.class)) {
+            throw new JAGILException("no-args-contructor is only permitted if this class is annotated with @UserInterByFile");
+        }
+
+        this.player = player;
+
+        TagResolver tagContext = TagResolver.empty();
+        if (this instanceof UserInterfaceContextHolder ctxHolder) {
+            tagContext = ctxHolder.getTagContext();
+        }
+
+        InventoryGuiTypes.DataGui gui;
+        try {
+            gui = GuiReaderManager.getInstance().readGui(this, tagContext);
+        } catch (IOException e) {
+            throw new JAGILException("Could no build gui from file", e);
+        }
+
+        this.guiData = gui;
+        this.name = gui.name;
+        this.size = gui.size;
+        this.itemIds = new HashMap<>();
+        gui.items.values().forEach(item -> this.itemIds.put(item.id, item.slot));
     }
 
     /**
@@ -74,13 +119,11 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
      * @param gui the {@link InventoryGuiTypes.DataGui} class to load the GUI from.
      */
     public InventoryGui(InventoryGuiTypes.DataGui gui) {
-        guiData = gui;
-        name = gui.name;
-        size = gui.size;
-        itemIds = new HashMap<>();
-        for (InventoryGuiTypes.GuiItem item : gui.items.values()) {
-            itemIds.put(item.id, item.slot);
-        }
+        this.guiData = gui;
+        this.name = gui.name;
+        this.size = gui.size;
+        this.itemIds = new HashMap<>();
+        gui.items.values().forEach(item -> this.itemIds.put(item.id, item.slot));
     }
 
     /**
@@ -89,16 +132,15 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
      * Use this constructor when you like to create a non-universal {@link InventoryGui}.
      *
      * @param gui the {@link InventoryGuiTypes.DataGui} class to load the GUI from.
+     * @param player {@link Player} that should see this {@link Inventory}
      */
-    public InventoryGui(InventoryGuiTypes.DataGui gui, OfflinePlayer offlinePlayer) {
-        guiData = gui;
-        name = gui.name;
-        size = gui.size;
-        this.offlinePlayer = offlinePlayer;
-        itemIds = new HashMap<>();
-        for (InventoryGuiTypes.GuiItem item : gui.items.values()) {
-            itemIds.put(item.id, item.slot);
-        }
+    public InventoryGui(InventoryGuiTypes.DataGui gui, Player player) {
+        this.guiData = gui;
+        this.name = gui.name;
+        this.size = gui.size;
+        this.player = player;
+        this.itemIds = new HashMap<>();
+        gui.items.values().forEach(item -> this.itemIds.put(item.id, item.slot));
     }
 
     /**
@@ -118,12 +160,12 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
      *
      * @param name          name of the {@link Inventory}
      * @param size          size of the {@link Inventory}
-     * @param offlinePlayer the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
+     * @param player the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
      */
-    public InventoryGui(Component name, int size, OfflinePlayer offlinePlayer) {
+    public InventoryGui(Component name, int size, Player player) {
         this.name = name;
         this.size = size;
-        this.offlinePlayer = offlinePlayer;
+        this.player = player;
     }
 
     /**
@@ -133,7 +175,6 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
      * @param name name of the {@link Inventory}
      * @param type {@link InventoryType} of the {@link Inventory}
      */
-    @UnstableFeature
     public InventoryGui(Component name, InventoryType type) {
         this(name, type, null);
     }
@@ -144,64 +185,76 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
      *
      * @param name          name of the {@link Inventory}
      * @param type          {@link InventoryType} of the {@link Inventory}
-     * @param offlinePlayer the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
+     * @param player the {@link org.bukkit.entity.Player} that should see this {@link Inventory}.
      */
-    @UnstableFeature
-    public InventoryGui(Component name, InventoryType type, OfflinePlayer offlinePlayer) {
+    public InventoryGui(Component name, InventoryType type, Player player) {
         this.name = name;
         this.type = type;
-        this.offlinePlayer = offlinePlayer;
+        this.player = player;
     }
 
     @Override
-    public final UUID getPlayerUUID() {
-        return this.offlinePlayer.getUniqueId();
+    public final @NotNull UUID getPlayerUUID() {
+        return this.player.getUniqueId();
     }
 
     @Override
-    public final Player getPlayer() {
-        return this.offlinePlayer.getPlayer();
-    }
-
-    @Override
-    public UISystem getUiSystem() {
+    public @NotNull UISystem<InventoryGuiTypes.DataGui> getUiSystem() {
         if (this.uiSystem == null) {
-            this.uiSystem = new GuiUISystem(this.size);
+            this.uiSystem = new InventoryUiSystem(this.size);
         }
 
-        return uiSystem;
+        return this.uiSystem;
     }
 
     /**
      * Closes the {@link Inventory} of this {@link InventoryGui} save.
      */
     @Override
-    public final void closeInventory() {
-        Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> getPlayer().closeInventory());
-    }
+    public final void closePlayerInventory() {
+        InventoryView inventoryView = this.getPlayer().getOpenInventory();
+        InventoryHolder bottomInvHolder = inventoryView.getBottomInventory().getHolder();
+        InventoryHolder topInvHolder = inventoryView.getTopInventory().getHolder();
 
-    private void updateInternal() {
-        if (this.inventory == null) {
-            if (this.size != 0) {
-                this.inventory = Bukkit.createInventory(this, this.size, this.name);
-            } else {
-                this.inventory = Bukkit.createInventory(this, this.type, this.name);
-            }
-            fillInternal();
-        } else {
-            fillInternal();
-            getPlayer().updateInventory();
+        // only close the players inventory if it is this inventory
+        if (!(bottomInvHolder instanceof InventoryGui bottomInv)) {
+            return;
         }
+
+        if (!(topInvHolder instanceof InventoryGui topInv)) {
+            return;
+        }
+
+        if (!bottomInv.equals(this) && !topInv.equals(this)) {
+            return;
+        }
+
+        Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> this.getPlayer().closeInventory());
     }
 
     /**
      * This method is called to create an Inventory.
      * This is called by {@link InventoryGui#show()} automatically.
      */
-    @Internal
-    protected final void update() {
-        if (offlinePlayer == null) throw new RuntimeException("This method should not be called on universal GUIs");
-        updateInternal();
+    private void updateRenderedInventory() {
+        if (this.inventory != null) {
+            this.fillInternal();
+            this.getPlayer().updateInventory();
+            return;
+        }
+
+        if (this.size > 0 && (this.size % 9) == 0) {
+            this.inventory = Bukkit.createInventory(this, this.size, this.name);
+        } else if (this.type != null) {
+            this.inventory = Bukkit.createInventory(this, this.type, this.name);
+        }
+
+        if (this.inventory == null) {
+            throw new JAGILException("this.size > 0 or this.type != null must be true");
+        }
+
+        this.fillInternal();
+        this.getPlayer().updateInventory();
     }
 
     /**
@@ -211,7 +264,19 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
     @Override
     public final void forceUpdate() {
         this.inventory = null;
-        updateInternal();
+        this.updateRenderedInventory();
+    }
+
+    private void initAnimation() {
+        AtomicInteger ticks = new AtomicInteger(0);
+        AtomicInteger lastItem = new AtomicInteger(0);
+
+        if (this.animationTaskId != -1) Bukkit.getScheduler().cancelTask(this.animationTaskId);
+
+        this.animationTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(JAGIL.getLoaderPlugin(), () -> {
+            if (this.inventory == null) return;
+            this.animate(ticks.getAndIncrement(), lastItem);
+        }, 0L, 1L);
     }
 
     /**
@@ -222,28 +287,16 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
      */
     @Override
     public final InventoryGui show() {
-        update();
-        if (this.offlinePlayer == null) throw new RuntimeException("Please use show(OfflinePlayer) for universal GUIs");
-        if (!Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> getPlayer().openInventory(this.inventory));
-        } else {
-            getPlayer().openInventory(this.inventory);
-        }
-        getPlayer().updateInventory();
+        this.updateRenderedInventory();
+        Bukkit.getScheduler().runTask(JAGIL.getLoaderPlugin(), () -> {
+            this.getPlayer().openInventory(this.inventory);
+            this.getPlayer().updateInventory();
+        });
 
-        if (this.guiData.animationMod == 0) {
-            return this;
+        if (this.guiData.animationTick != 0) {
+            this.initAnimation();
         }
 
-        AtomicInteger ticks = new AtomicInteger(0);
-        AtomicInteger lastItem = new AtomicInteger(0);
-
-        if (this.animationTaskId != -1) Bukkit.getScheduler().cancelTask(this.animationTaskId);
-
-        this.animationTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(JAGIL.getLoaderPlugin(), () -> {
-            if (this.inventory == null) return;
-            animate(ticks.getAndIncrement(), lastItem);
-        }, 0L, 1L);
         return this;
     }
 
@@ -253,50 +306,53 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
      * @param player player that should see the {@link Inventory}
      * @return instance for chaining
      */
-    public final InventoryGui show(OfflinePlayer player) {
+    @Override
+    public final InventoryGui show(Player player) {
         if (player != null) {
-            Logger.getLogger("JAGIL")
+            JAGIL.getLogger()
                     .warning("Using show(OfflinePlayer) for non-universal GUIs is dangerous. Please try to avoid it.");
         }
 
-        this.offlinePlayer = player;
-        this.updateInternal();
+        this.player = player;
+        this.updateRenderedInventory();
         this.show();
-        this.offlinePlayer = null;
+        this.player = null;
         return this;
     }
 
-    protected final void fillInternal() {
+    private void fillInternal() {
         if (this.guiData != null) {
             this.guiData.ui
                     .values()
                     .stream()
-                    .filter(it -> !getUiSystem().hasComponent(it.getId()))
+                    .filter(it -> !this.getUiSystem().hasComponent(it.getId()))
                     .forEach(getUiSystem()::addComponent);
         }
 
-        getUiSystem().render();
-        InventoryGuiTypes.DataGui data = ((UIRenderPlainProvider<InventoryGuiTypes.DataGui>) getUiSystem().getRenderProvider()).getRenderPlain();
+        this.getUiSystem().render();
+        InventoryGuiTypes.DataGui data = this.getUiSystem().getRenderProvider().getRenderPane();
 
         if (this.guiData != null) {
             data.name = this.guiData.name;
             data.size = this.guiData.size;
-            data.animationMod = this.guiData.animationMod;
+            data.animationTick = this.guiData.animationTick;
             data.merge(this.guiData);
         } else {
-            data.name = getName();
-            data.size = getSize();
-            data.animationMod = 0;
+            data.name = this.getName();
+            data.size = this.getSize();
+            data.animationTick = 0;
         }
         this.guiData = data;
 
-        for (InventoryGuiTypes.GuiItem guiItem : this.guiData.items.values()) {
-            if (guiItem.slot < 0) continue;
-            ItemStack is = guiItem.toItem();
-            this.inventory.setItem(guiItem.slot, is);
-        }
+        // fill has to be called before the processing of gui items to allow for mutation of the items
+        this.fill();
 
-        fill();
+        this.guiData.items.values().stream()
+                .filter(guiItem -> guiItem.slot >= 0 && !guiItem.template)
+                .filter(guiItem -> this.inventory.getItem(guiItem.slot) == null) // do not overwrite existing items
+                .sorted()
+                .map(guiItem -> new Pair<>(guiItem.slot, guiItem.toItem()))
+                .forEach(pair -> this.inventory.setItem(pair.getKey(), pair.getValue()));
     }
 
     /**
@@ -314,8 +370,8 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
     @Override
     public void animate(long tick, AtomicInteger atomicLastItem) {
         if (this.guiData == null) return;
-        if (this.guiData.animationMod == 0) return;
-        if (tick % this.guiData.animationMod != 0) return;
+        if (this.guiData.animationTick == 0) return;
+        if (tick % this.guiData.animationTick != 0) return;
 
         int lastItem = atomicLastItem.getAndIncrement();
         for (InventoryGuiTypes.GuiItem guiItem : this.guiData.items.values()) {
@@ -326,26 +382,26 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
             frame.animate(tick, this);
         }
 
-        getPlayer().updateInventory();
+        this.getPlayer().updateInventory();
     }
 
     @Override
     @Internal
     public final boolean handleInternal(InventoryClickEvent e) {
         if (System.currentTimeMillis() - this.lastInteraction <= this.interactionCooldown) {
-            handleBlocked(e);
-            return isCancelledByDefault();
+            this.handleBlocked(e);
+            return this.isCancelledByDefault();
         }
 
         this.lastInteraction = System.currentTimeMillis();
         Point p = InventoryPosition.fromSlot(e.getSlot()).toPoint();
-        Clickable component = getUiSystem().getClickedComponent(p);
+        Clickable component = this.getUiSystem().getClickedComponent(p);
         if (component != null) {
             UIAction<InventoryGuiTypes.DataGui> click = new UIAction<>(e.getWhoClicked(), InventoryGuiTypes.DataGui.class, p, e.getClick());
             component.click(click);
         }
 
-        return handle(e);
+        return this.handle(e);
     }
 
     /**
@@ -357,7 +413,7 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
      */
     @Override
     public boolean handle(InventoryClickEvent e) {
-        return isCancelledByDefault();
+        return this.isCancelledByDefault();
     }
 
     /**
@@ -389,7 +445,7 @@ public class InventoryGui implements InventoryUserInterface, InventoryAnimatable
     @Override
     @OptionalImplementation
     public boolean handleDrag(InventoryDragEvent e) {
-        return isCancelledByDefault();
+        return this.isCancelledByDefault();
     }
 
     /**

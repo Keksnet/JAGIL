@@ -60,6 +60,10 @@
         }
       ]
     },
+    "layer": {
+      "description": "Layer the item should be rendered on. Higher values will override items with a lower value. Default: 0",
+      "type": "integer"
+    },
     "material": {
       "description": "bukkit material of the item",
       "type": "string",

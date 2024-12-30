@@ -1,10 +1,11 @@
 package de.neo8.jagil.ui.impl;
 
 import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
-import de.neo8.jagil.ui.UIRenderPlainProvider;
+import de.neo8.jagil.ui.UIRenderPaneProvider;
 import de.neo8.jagil.ui.UISystem;
 import de.neo8.jagil.ui.components.Clickable;
 import de.neo8.jagil.ui.components.UIComponent;
+import lombok.Getter;
 
 import java.awt.*;
 import java.util.Comparator;
@@ -12,17 +13,18 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class GuiUISystem implements UISystem {
+public class InventoryUiSystem implements UISystem<InventoryGuiTypes.DataGui> {
 
     private final int size;
     private final HashMap<String, UIComponent> components;
 
-    private final UIRenderPlainProvider<InventoryGuiTypes.DataGui> renderPlain;
+    @Getter
+    private final UIRenderPaneProvider<InventoryGuiTypes.DataGui> renderProvider;
 
-    public GuiUISystem(int size) {
+    public InventoryUiSystem(int size) {
         this.size = size;
         this.components = new HashMap<>();
-        this.renderPlain = new GuiRenderPlainProvider();
+        this.renderProvider = new InventoryRenderPaneProvider();
     }
 
     @Override
@@ -67,20 +69,15 @@ public class GuiUISystem implements UISystem {
     }
 
     @Override
-    public UIRenderPlainProvider<?> getRenderProvider() {
-        return this.renderPlain;
-    }
-
-    @Override
     public void render() {
-        render(this.renderPlain);
+        this.render(this.renderProvider);
     }
 
     @Override
-    public void render(UIRenderPlainProvider<?> renderPlain) {
+    public void render(UIRenderPaneProvider<?> renderPaneProvider) {
         this.components.values()
                 .stream()
                 .sorted(Comparator.comparingInt(UIComponent::getPriority).reversed())
-                .forEach(component -> component.render(renderPlain));
+                .forEach(component -> component.render(renderPaneProvider));
     }
 }

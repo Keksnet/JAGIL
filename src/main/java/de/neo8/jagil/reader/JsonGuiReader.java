@@ -11,64 +11,76 @@ import de.neo8.jagil.util.InventoryPosition;
 import de.neo8.jagil.util.ParseUtil;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.ComponentSerializer;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 
+@Getter
 public class JsonGuiReader implements GuiReader<JsonObject> {
 
-    @Override
-    public boolean supportsFile(Path filePath, String content) {
-        try {
-            new Gson().fromJson(content, JsonObject.class);
-            return true;
-        } catch (JsonSyntaxException ignored) {
-        }
+    @Nullable
+    private final TagResolver tagContext;
+    private final InventoryGuiTypes.DataGui dataGui = new InventoryGuiTypes.DataGui();
 
-        return false;
+    private JsonGuiReader(@Nullable TagResolver tagContext) {
+        this.tagContext = tagContext;
     }
 
     @Override
     public InventoryGuiTypes.DataGui read(String content) throws RuntimeException {
-        InventoryGuiTypes.DataGui gui = new InventoryGuiTypes.DataGui();
         JsonObject json = new Gson().fromJson(content, JsonObject.class);
 
         // Unknown fileVersion
-        gui.fileVersion = -1;
+        dataGui.fileVersion = -1;
 
         JsonElement fileVersionElement = json.get("fileVersion");
         if (fileVersionElement != null) {
-            gui.fileVersion = fileVersionElement.getAsLong();
+            dataGui.fileVersion = fileVersionElement.getAsLong();
         }
 
-        gui.messageFormat = ParseUtil.getMessageFormat(json, "messageFormat");
-        gui.name = ParseUtil.getAsComponent(gui, json.get("name"));
-        gui.size = json.get("size").getAsInt();
-        gui.animationMod = ParseUtil.getJsonInt(json, "animationTick");
+        dataGui.messageFormat = ParseUtil.getMessageFormat(json, "messageFormat");
+        dataGui.name = getAsComponent(json.get("name"));
+        dataGui.size = json.get("size").getAsInt();
+        dataGui.animationTick = ParseUtil.getJsonInt(json, "animationTick");
 
         if (json.has("items")) {
-            parseItems(gui, json);
+            parseItems(json);
         } else if (json.has("ui")) {
             try {
-                parseUI(gui, json);
+                parseUI(json);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else {
-            JAGIL.getLogger().warning("[JAGIL] Empty GUI " + gui.name + ": no items section!");
-            return gui;
+            JAGIL.getLogger().warning("[JAGIL] Empty GUI " + this.dataGui.name + ": no items section!");
+            return this.dataGui;
         }
 
-        return gui;
+        return this.dataGui;
     }
 
-    @Override
-    public void parseItem(InventoryGuiTypes.DataGui gui, JsonObject json) {
+    public void parseItem(JsonObject json) {
         JsonObject jsonItem = json.getAsJsonObject();
         InventoryGuiTypes.GuiItem item = new InventoryGuiTypes.GuiItem();
 
         item.id = ParseUtil.getJsonString(jsonItem, "id");
+        item.template = false;
+        if (jsonItem.has("template")) {
+            item.template = jsonItem.get("template").getAsBoolean();
+        }
+
+        item.layer = ParseUtil.getJsonInt(jsonItem, "layer", 0);
 
         // parse slot/pos attribute
         if (jsonItem.has("pos")) {
@@ -94,18 +106,18 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
                     JAGIL.getLogger().warning("[JAGIL] slot property for item " + item.id + " is invalid!");
                 }
             } else if (!item.id.isEmpty()) {
-                item.slot = ParseUtil.getAutoSlotId(gui);
+                item.slot = ParseUtil.getAutoSlotId(dataGui);
             } else throw new IllegalStateException("slot is not json");
         }
 
         item.material = Material.getMaterial(ParseUtil.getJsonString(jsonItem, "material"));
-        item.name = ParseUtil.getAsComponent(gui, jsonItem.get("name"));
+        item.name = getAsComponent(jsonItem.get("name"));
         item.amount = ParseUtil.getJsonInt(jsonItem, "amount");
         item.amount = item.amount == 0 ? 1 : item.amount;
 
         if (jsonItem.has("lore")) {
             for (JsonElement strElem : jsonItem.get("lore").getAsJsonArray()) {
-                item.lore.add(ParseUtil.getAsComponent(gui, strElem));
+                item.lore.add(getAsComponent(strElem));
             }
         }
 
@@ -152,25 +164,32 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
             }
         }
 
+        if (item.id == null) {
+            item.id = "gen-slot-" + item.slot;
+            item.generatedId = true;
+        }
+
         if (!jsonItem.has("slot") || !jsonItem.get("slot").isJsonPrimitive()) {
-            gui.items.put(item.slot, item);
+            dataGui.items.put(item.id, item);
         }
 
         if (jsonItem.has("slot")) {
             JsonElement slotElement = jsonItem.get("slot");
             if (slotElement.isJsonPrimitive()) {
-                gui.items.put(item.slot, item);
+                dataGui.items.put(item.id, item);
             } else if (slotElement.isJsonObject()) {
-                applyFillObject(gui, item, slotElement.getAsJsonObject());
+                applyFillObject(item, slotElement.getAsJsonObject());
             } else if (slotElement.isJsonArray()) {
                 for (JsonElement fillElem : jsonItem.get("slot").getAsJsonArray()) {
                     if (fillElem.isJsonObject()) {
-                        applyFillObject(gui, item, fillElem.getAsJsonObject());
+                        applyFillObject(item, fillElem.getAsJsonObject());
                     } else if (fillElem.isJsonPrimitive()) {
                         int slot = fillElem.getAsInt();
                         InventoryGuiTypes.GuiItem item2 = new InventoryGuiTypes.GuiItem(item);
                         item2.slot = slot;
-                        gui.items.put(slot, item2);
+                        item2.id = "gen-slot-" + item2.slot;
+                        item2.generatedId = true;
+                        dataGui.items.put(item2.id, item2);
                     } else {
                         JAGIL.getLogger().warning("[JAGIL] Invalid fill property item in GUI:" + fillElem);
                     }
@@ -179,31 +198,88 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         }
     }
 
-    @Override
-    public void parseUIComponent(InventoryGuiTypes.DataGui gui, JsonObject jsonUi) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private void parseUIComponent(JsonObject jsonUi) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         UIComponent component = ParseUtil.getUIComponent(jsonUi.get("type").getAsString(), jsonUi);
-        gui.ui.put(component.getId(), component);
+        this.dataGui.ui.put(component.getId(), component);
     }
 
-    public void parseUI(InventoryGuiTypes.DataGui gui, JsonObject json) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private void parseUI(JsonObject json) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         for (JsonElement elem : json.get("ui").getAsJsonArray()) {
-            parseUIComponent(gui, elem.getAsJsonObject());
+            parseUIComponent(elem.getAsJsonObject());
         }
     }
 
-    public void parseItems(InventoryGuiTypes.DataGui gui, JsonObject json) {
+    private void parseItems(JsonObject json) {
         for (JsonElement elem : json.get("items").getAsJsonArray()) {
-            parseItem(gui, elem.getAsJsonObject());
+            parseItem(elem.getAsJsonObject());
         }
     }
 
-    private void applyFillObject(InventoryGuiTypes.DataGui gui, InventoryGuiTypes.GuiItem item, JsonObject fillObject) {
+    private void applyFillObject(InventoryGuiTypes.GuiItem item, JsonObject fillObject) {
         int from = fillObject.get("from").getAsInt();
         int to = fillObject.get("to").getAsInt();
         for (int i = from; i <= to; i++) {
             InventoryGuiTypes.GuiItem item2 = new InventoryGuiTypes.GuiItem(item);
             item2.slot = i;
-            gui.items.put(i, item2);
+            item2.id = "gen-slot-" + item2.slot;
+            item2.generatedId = true;
+
+            this.dataGui.items.put(item2.id, item2);
+        }
+    }
+
+    @NotNull
+    private Component getAsComponent(@Nullable JsonElement jsonElement) {
+        if (jsonElement == null) {
+            return Component.empty();
+        }
+
+        String serializedMessage = jsonElement.getAsString();
+        if (serializedMessage == null || serializedMessage.isBlank()) {
+            return Component.empty();
+        }
+
+        if (this.dataGui.messageFormat == InventoryGuiTypes.MessageFormat.MINI_MESSAGE) {
+            if (this.tagContext == null) {
+                return MiniMessage.miniMessage().deserialize(serializedMessage);
+            }
+
+            return MiniMessage.miniMessage().deserialize(serializedMessage, tagContext);
+        }
+
+        ComponentSerializer<Component, ? extends Component, String> serializer;
+        switch (this.dataGui.messageFormat) {
+            case LEGACY -> serializer = LegacyComponentSerializer.legacySection();
+            case PLAIN -> serializer = PlainTextComponentSerializer.plainText();
+            case JSON -> serializer = GsonComponentSerializer.gson();
+
+            default -> throw new IllegalArgumentException("Unsupported format: " + this.dataGui.messageFormat);
+        }
+
+        return serializer.deserialize(jsonElement.getAsString());
+    }
+
+    public static class Provider implements GuiReaderProvider<JsonGuiReader> {
+        @Getter
+        private final static Provider instance = new Provider();
+
+        private Provider() {
+        }
+
+        @Override
+        public boolean supportsFile(@NotNull Path filePath, @NotNull String content) {
+            try {
+                new Gson().fromJson(content, JsonObject.class);
+                return true;
+            } catch (JsonSyntaxException ignored) {
+            }
+
+            return false;
+        }
+
+        @Override
+        public @NotNull JsonGuiReader getReader(@Nullable TagResolver tagContext) {
+            return new JsonGuiReader(tagContext);
         }
     }
 }

@@ -1,6 +1,6 @@
 package de.neo8.jagil.ui.components;
 
-import de.neo8.jagil.ui.UIRenderPlainProvider;
+import de.neo8.jagil.ui.UIRenderPaneProvider;
 
 import java.awt.*;
 
@@ -16,6 +16,6 @@ public interface UIComponent {
 
     int getPriority();
 
-    void render(UIRenderPlainProvider<?> renderPlain);
+    void render(UIRenderPaneProvider<?> renderPlain);
 
 }

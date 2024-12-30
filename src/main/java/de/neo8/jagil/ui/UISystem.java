@@ -5,7 +5,7 @@ import de.neo8.jagil.ui.components.UIComponent;
 
 import java.awt.*;
 
-public interface UISystem {
+public interface UISystem<P> {
 
     int getSize();
 
@@ -19,10 +19,10 @@ public interface UISystem {
 
     void removeComponent(UIComponent component);
 
-    UIRenderPlainProvider<?> getRenderProvider();
+    UIRenderPaneProvider<P> getRenderProvider();
 
     void render();
 
-    void render(UIRenderPlainProvider<?> renderPlain);
+    void render(UIRenderPaneProvider<?> renderPaneProvider);
 
 }

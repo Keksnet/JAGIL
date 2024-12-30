@@ -23,7 +23,7 @@ import java.util.List;
  * @author Nononitas
  * @version 3.3.5
  */
-public class PlayerListInventoryGui extends InventoryGui {
+public class PlayerListGui extends InventoryGui {
 
     private int page = 0;
 
@@ -35,7 +35,7 @@ public class PlayerListInventoryGui extends InventoryGui {
     protected Component nextPageComponent = LegacyComponentSerializer.legacySection().deserialize("§aNext Page");
     protected Component prevPageComponent = LegacyComponentSerializer.legacySection().deserialize("§aPrevious Page");
 
-    public PlayerListInventoryGui(Player player, Component title) {
+    public PlayerListGui(Player player, Component title) {
         super(title, 54, player);
     }
 
@@ -95,16 +95,15 @@ public class PlayerListInventoryGui extends InventoryGui {
         if (slot == 47 && page > 0) {
             if (clickedItem.getType() == Material.PLAYER_HEAD) {
                 page--;
-                fillInternal();
+                this.forceUpdate();
             }
 
         } else if (slot == 51) {
             if (clickedItem.getType() == Material.PLAYER_HEAD) {
                 page++;
-                fillInternal();
+                this.forceUpdate();
             }
         }
-
 
         return true;
     }

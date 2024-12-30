@@ -1,17 +1,12 @@
 package de.neo8.jagil.util;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.neo8.jagil.annotation.Internal;
 import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.ui.components.JsonParsable;
 import de.neo8.jagil.ui.components.UIComponent;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.ComponentSerializer;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
@@ -20,21 +15,26 @@ import java.util.Arrays;
 public class ParseUtil {
 
     @Internal
-    public static String getJsonString(JsonObject json, String key) {
-        if (!json.has(key)) return "";
+    public static @Nullable String getJsonString(@NotNull JsonObject json, @NotNull String key) {
+        if (!json.has(key)) return null;
         return json.get(key).getAsString();
     }
 
     @Internal
-    public static String getJsonStringOrNull(JsonObject json, String key) {
+    public static @Nullable String getJsonStringOrNull(@NotNull JsonObject json, @NotNull String key) {
         String jsonString = getJsonString(json, key);
-        if (jsonString.isEmpty()) return null;
+        if (jsonString == null || jsonString.isEmpty()) return null;
         return jsonString;
     }
 
     @Internal
     public static int getJsonInt(JsonObject json, String key) {
-        if (!json.has(key)) return 0;
+        return getJsonInt(json, key, 0);
+    }
+
+    @Internal
+    public static int getJsonInt(JsonObject json, String key, int defaultValue) {
+        if (!json.has(key)) return defaultValue;
         return json.get(key).getAsInt();
     }
 
@@ -100,26 +100,6 @@ public class ParseUtil {
         }
 
         return InventoryGuiTypes.MessageFormat.valueOf(messageFormat);
-    }
-
-    @Internal
-    public static Component getAsComponent(InventoryGuiTypes.DataGui gui, JsonElement jsonElement) {
-        ComponentSerializer<Component, ? extends Component, String> serializer;
-        switch (gui.messageFormat) {
-            case MINI_MESSAGE -> serializer = MiniMessage.miniMessage();
-            case LEGACY -> serializer = LegacyComponentSerializer.legacySection();
-            case PLAIN -> serializer = PlainTextComponentSerializer.plainText();
-            case JSON -> serializer = GsonComponentSerializer.gson();
-
-            default -> throw new IllegalArgumentException("Unsupported format: " + gui.messageFormat);
-        }
-
-        String serializedMessage = jsonElement.getAsString();
-        if (serializedMessage == null || serializedMessage.isBlank()) {
-            return Component.empty();
-        }
-
-        return serializer.deserialize(jsonElement.getAsString());
     }
 
 }

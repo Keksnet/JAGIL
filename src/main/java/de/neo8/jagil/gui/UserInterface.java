@@ -1,34 +1,31 @@
 package de.neo8.jagil.gui;
 
-import de.neo8.jagil.ui.UISystem;
+import de.neo8.jagil.JAGIL;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public interface UserInterface {
+public interface UserInterface extends UniversalUserInterface {
 
+    @NotNull
     UUID getPlayerUUID();
 
+    @NotNull
     Player getPlayer();
-
-    UISystem getUiSystem();
-
-    /**
-     * Forcefully update the {@link UserInterface}
-     */
-    void forceUpdate();
 
     /**
      * Opens this {@link UserInterface}
      *
      * @return instance for chaining
      */
+    @Contract("-> this")
     UserInterface show();
 
-    /**
-     * This method should contain code to render the interface of this {@link UserInterface}.
-     * The {@link UserInterface} should not be shown until {@link #show()} is called.
-     */
-    void render();
-
+    @Override
+    default UserInterface show(Player ignore) {
+        JAGIL.getLogger().warning("UserInterface should not be opened using show(Player). Use show() instead!");
+        return show();
+    }
 }

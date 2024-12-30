@@ -11,9 +11,12 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 public class InventoryGuiTypes {
 
@@ -40,25 +43,22 @@ public class InventoryGuiTypes {
     }
 
     public static class DataGui {
-
         public long fileVersion;
         public MessageFormat messageFormat;
         public Component name;
         public int size;
-        public long animationMod;
-        public HashMap<Integer, GuiItem> items;
-        public HashMap<String, UIComponent> ui;
-        public HashMap<String, Integer> itemIdTable;
+        public long animationTick;
+        public Map<String, GuiItem> items;
+        public Map<String, UIComponent> ui;
 
         public DataGui() {
             this.fileVersion = 4;
             this.messageFormat = MessageFormat.MINI_MESSAGE;
             this.name = Component.empty();
             this.size = 0;
-            this.animationMod = 0;
+            this.animationTick = 0;
             this.items = new HashMap<>();
             this.ui = new HashMap<>();
-            this.itemIdTable = new HashMap<>();
         }
 
         /**
@@ -69,7 +69,6 @@ public class InventoryGuiTypes {
          */
         public void merge(DataGui other) {
             this.items.putAll(other.items);
-            rebuildItemIdTable();
         }
 
         /**
@@ -78,9 +77,9 @@ public class InventoryGuiTypes {
          * @param itemId the id of the {@link ItemStack}
          * @return the slot of the {@link ItemStack} with the given id
          */
-        public int getSlot(String itemId) {
-            if (itemIdTable.isEmpty()) rebuildItemIdTable();
-            return this.itemIdTable.getOrDefault(itemId, 999);
+        @Nullable
+        public Integer getSlot(@NotNull String itemId) {
+            return this.items.getOrDefault(itemId, null).slot;
         }
 
         /**
@@ -89,12 +88,9 @@ public class InventoryGuiTypes {
          * @param itemId the id of the {@link ItemStack}
          * @return the {@link ItemStack} with the given id
          */
-        public ItemStack getItem(String itemId) {
-            int slot = getSlot(itemId);
-            if (slot == 999) {
-                return new ItemStack(Material.AIR);
-            }
-            return this.items.get(slot).toItem();
+        @NotNull
+        public ItemStack getItem(@NotNull String itemId) {
+            return this.items.get(itemId).toItem();
         }
 
         /**
@@ -103,12 +99,14 @@ public class InventoryGuiTypes {
          * @param itemId the id of the {@link GuiItem}
          * @return the {@link GuiItem} with the given id
          */
-        public GuiItem getGuiItem(String itemId) {
-            int slot = getSlot(itemId);
-            if (slot == 999) {
+        @Nullable
+        public GuiItem getGuiItem(@NotNull String itemId) {
+            GuiItem items = getMutableGuiItem(itemId);
+            if (items == null) {
                 return null;
             }
-            return new GuiItem(this.items.get(slot));
+
+            return new GuiItem(items);
         }
 
         /**
@@ -118,37 +116,47 @@ public class InventoryGuiTypes {
          * @return the itemId of the {@link ItemStack} with the given slot
          */
         public String getItemId(int slot) {
-            if (itemIdTable.isEmpty()) rebuildItemIdTable();
             String itemId = "";
-            for (Map.Entry<String, Integer> entry : this.itemIdTable.entrySet()) {
-                if (entry.getValue() == slot) {
+            List<Map.Entry<String, GuiItem>> itemStream = this.items.entrySet()
+                    .stream()
+                    .filter(x -> !x.getValue().template)
+                    .sorted((a,b) -> b.getValue().compareTo(a.getValue()))
+                    .toList();
+            for (Map.Entry<String, GuiItem> entry : itemStream) {
+                if (entry.getValue().slot == slot) {
                     itemId = entry.getKey();
                     break;
                 }
             }
+
             return itemId;
         }
 
-        public void rebuildItemIdTable() {
-            this.itemIdTable.clear();
-            for (Map.Entry<Integer, GuiItem> entry : this.items.entrySet()) {
-                this.itemIdTable.put(entry.getValue().id, entry.getKey());
-            }
+        /**
+         * Returns a mutable {@link GuiItem} with the given id.
+         *
+         * @param itemId if of the returned {@link GuiItem}
+         * @return mutable {@link GuiItem} with the given id
+         */
+        public GuiItem getMutableGuiItem(String itemId) {
+            return this.items.get(itemId);
         }
 
         @Override
         public String toString() {
             return "DataGui{name=" + this.name + ", " +
                     "size=" + this.size + ", " +
-                    "items=" + this.items + "," +
-                    "itemIdTable=" + this.itemIdTable + "}";
+                    "items=" + this.items + "}";
         }
     }
 
-    public static class GuiItem {
+    public static class GuiItem implements Comparable<GuiItem> {
 
         public String id;
+        public boolean generatedId;
+        public boolean template;
         public int slot;
+        public int layer;
         public Material material;
         public Component name;
         public int amount;
@@ -161,6 +169,8 @@ public class InventoryGuiTypes {
 
         public GuiItem() {
             this.id = "";
+            this.generatedId = false;
+            this.template = false;
             this.slot = 0;
             this.material = Material.AIR;
             this.name = Component.empty();
@@ -173,7 +183,10 @@ public class InventoryGuiTypes {
 
         public GuiItem(GuiItem item) {
             this.id = item.id;
+            this.template = item.template;
+            this.generatedId = item.generatedId;
             this.slot = item.slot;
+            this.layer = item.layer;
             this.material = item.material;
             this.name = item.name;
             this.amount = item.amount;
@@ -213,6 +226,11 @@ public class InventoryGuiTypes {
                     "texture=" + this.texture + "," +
                     "attributes=" + this.attributes + "," +
                     "animationFrames=" + this.animationFrames + "}";
+        }
+
+        @Override
+        public int compareTo(@NotNull InventoryGuiTypes.GuiItem o) {
+            return this.layer - o.layer;
         }
     }
 
