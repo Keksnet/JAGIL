@@ -32,6 +32,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -171,11 +173,13 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
             }
 
             item.texture = ParseUtil.getJsonString(jsonItem, "texture");
-            if (item.texture != null && item.texture.startsWith("@hdb-")) {
+            if (item.texture != null && item.texture.endsWith("@hdb")) {
                 if (JAGIL.getGlobalJAGILConfig().getSupportedFeatures().contains("head-database-api")) {
-                    item.texture = HdbProvider.getHeadDatabaseAPI().getBase64(item.texture.substring(5));
+                    Pattern hdbTextureIdRegex = Pattern.compile("^(\\w+)@hdb$");
+                    Matcher hdbMatcher = hdbTextureIdRegex.matcher(item.texture);
+                    item.texture = HdbProvider.getHeadDatabaseAPI().getBase64(hdbMatcher.group(1));
                 } else {
-                    JAGIL.getLogger().warning("HeadDatabase support is either disabled or not available. GuiFile uses @hdb-<id> despite this.");
+                    JAGIL.getLogger().warning("HeadDatabase support is either disabled or not available. GuiFile uses <id>@hdb despite this.");
                 }
             }
         }
