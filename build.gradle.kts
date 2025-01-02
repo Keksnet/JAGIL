@@ -20,13 +20,14 @@ repositories {
 dependencies {
     api(libs.org.jetbrains.annotations)
     compileOnly(libs.io.papermc.paper.paper.api)
+    compileOnly(libs.com.arcaniax.headdatabase.api)
 
     compileOnly(libs.org.projectlombok.lombok)
     annotationProcessor(libs.org.projectlombok.lombok)
 }
 
 group = "de.neo8.jagil"
-version = "4.0-beta.32"
+version = "4.0-beta.33"
 description = "JAGIL"
 java.sourceCompatibility = JavaVersion.VERSION_21
 

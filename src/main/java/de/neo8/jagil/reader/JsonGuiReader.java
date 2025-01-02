@@ -5,14 +5,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import de.neo8.jagil.JAGIL;
+import de.neo8.jagil.exception.JAGILException;
 import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
 import de.neo8.jagil.ui.components.UIComponent;
+import de.neo8.jagil.util.HdbProvider;
 import de.neo8.jagil.util.InventoryPosition;
+import de.neo8.jagil.util.Pair;
 import de.neo8.jagil.util.ParseUtil;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.ComponentSerializer;
@@ -25,6 +30,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 public class JsonGuiReader implements GuiReader<JsonObject> {
@@ -50,9 +59,29 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         }
 
         dataGui.messageFormat = ParseUtil.getMessageFormat(json, "messageFormat");
+        dataGui.features = json.get("features").getAsJsonArray().asList()
+                .stream()
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsString)
+                .toList();
         dataGui.name = getAsComponent(json.get("name"));
         dataGui.size = json.get("size").getAsInt();
         dataGui.animationTick = ParseUtil.getJsonInt(json, "animationTick");
+
+        // check if all features are supported by this JAGIL version
+        List<String> supportedFeatures = JAGIL.getGlobalJAGILConfig().getSupportedFeatures();
+        if (!dataGui.features
+                .stream()
+                .map(requiredFeature -> new Pair<>(requiredFeature, supportedFeatures.contains(requiredFeature)))
+                .allMatch(Pair::getValue)) {
+            String unsupportedFeatures = dataGui.features
+                    .stream()
+                    .map(requiredFeature -> new Pair<>(requiredFeature, supportedFeatures.contains(requiredFeature)))
+                    .filter(x -> !x.getValue())
+                    .map(Pair::getKey)
+                    .collect(Collectors.joining(", "));
+            throw new JAGILException("Gui-File requires unsupported features: " + unsupportedFeatures);
+        }
 
         if (json.has("items")) {
             parseItems(json);
@@ -128,14 +157,27 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
                 enchantment.enchantment =
                         RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).stream()
                                 .filter(it -> enchJson.get("name").getAsString().equalsIgnoreCase(it.toString()))
-                                .findFirst().get();
+                                .findFirst()
+                                .get();
                 enchantment.level = enchJson.get("level").getAsInt();
                 item.enchantments.add(enchantment);
             }
         }
 
         if (jsonItem.has("texture")) {
+            if (item.material != Material.PLAYER_HEAD && item.material != Material.PLAYER_WALL_HEAD) {
+                JAGIL.getLogger().warning("Using texture property on a non-head item. Changing item material to PLAYER_HEAD.");
+                item.material = Material.PLAYER_HEAD;
+            }
+
             item.texture = ParseUtil.getJsonString(jsonItem, "texture");
+            if (item.texture != null && item.texture.startsWith("@hdb-")) {
+                if (JAGIL.getGlobalJAGILConfig().getSupportedFeatures().contains("head-database-api")) {
+                    item.texture = HdbProvider.getHeadDatabaseAPI().getBase64(item.texture.substring(5));
+                } else {
+                    JAGIL.getLogger().warning("HeadDatabase support is either disabled or not available. GuiFile uses @hdb-<id> despite this.");
+                }
+            }
         }
 
         if (jsonItem.has("modelData")) {
@@ -244,7 +286,8 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
                 return MiniMessage.miniMessage().deserialize(serializedMessage);
             }
 
-            return MiniMessage.miniMessage().deserialize(serializedMessage, tagContext);
+            return MiniMessage.miniMessage().deserialize(serializedMessage, tagContext)
+                    .applyFallbackStyle(Style.style(TextDecoration.ITALIC.withState(TextDecoration.State.FALSE)));
         }
 
         ComponentSerializer<Component, ? extends Component, String> serializer;

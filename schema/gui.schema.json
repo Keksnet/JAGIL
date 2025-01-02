@@ -19,6 +19,14 @@
         "JSON"
       ]
     },
+    "features": {
+      "description": "list of supported features",
+      "type": "array",
+      "items": {
+        "description": "a single feature id",
+        "type": "string"
+      }
+    },
     "name": {
       "description": "Title of the inventory",
       "type": "string"

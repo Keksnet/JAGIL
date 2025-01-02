@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 
 public class InventoryGuiTypes {
 
@@ -25,10 +24,6 @@ public class InventoryGuiTypes {
         GuiAnimationFrame frame = pair.getValue();
         DataGui guiData = inventoryGui.getGuiData();
         ItemStack is = guiData.getItem(frame.itemId);
-        if (is == null) {
-            JAGIL.getLogger().warning("[JAGIL] GUI " + inventoryGui.getName() + ": item " + frame.itemId + " not found!");
-            return;
-        }
         Inventory inv = inventoryGui.getInventory();
         int slot = frame.position.toSlot();
         if (frame.previousFrame != null && frame.shouldCleanUp) inv.clear(frame.previousFrame.position.toSlot());
@@ -45,6 +40,7 @@ public class InventoryGuiTypes {
     public static class DataGui {
         public long fileVersion;
         public MessageFormat messageFormat;
+        public List<String> features;
         public Component name;
         public int size;
         public long animationTick;

@@ -3,10 +3,12 @@
 
 [versions]
 io-papermc-paper-paper-api = "1.21.1-R0.1-SNAPSHOT"
+com-arcaniax-headdatabase-api = "1.3.2"
 org-jetbrains-annotations = "23.0.0"
 org-projectlombok-lombok = "1.18.34"
 
 [libraries]
 io-papermc-paper-paper-api = { module = "io.papermc.paper:paper-api", version.ref = "io-papermc-paper-paper-api" }
+com-arcaniax-headdatabase-api = { module = "com.arcaniax:HeadDatabase-API", version.ref = "com-arcaniax-headdatabase-api" }
 org-jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "org-jetbrains-annotations" }
 org-projectlombok-lombok = { module = "org.projectlombok:lombok", version.ref = "org-projectlombok-lombok" }

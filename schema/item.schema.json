@@ -104,7 +104,7 @@
       }
     },
     "texture": {
-      "description": "texture for player head",
+      "description": "texture for player head. This sets material to PLAYER_HEAD. Can also be a HeadDatabase id, if the string is @hdb-<id>.",
       "type": "string"
     },
     "modelData": {
