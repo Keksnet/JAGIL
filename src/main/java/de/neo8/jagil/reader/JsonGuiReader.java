@@ -27,12 +27,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Getter
 public class JsonGuiReader implements GuiReader<JsonObject> {
@@ -276,13 +274,14 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         }
 
         String serializedMessage = jsonElement.getAsString();
-        if (serializedMessage == null || serializedMessage.isBlank()) {
+        if (serializedMessage == null) {
             return Component.empty();
         }
 
         if (this.dataGui.messageFormat == InventoryGuiTypes.MessageFormat.MINI_MESSAGE) {
             if (this.tagContext == null) {
-                return MiniMessage.miniMessage().deserialize(serializedMessage);
+                return MiniMessage.miniMessage().deserialize(serializedMessage)
+                        .applyFallbackStyle(Style.style(TextDecoration.ITALIC.withState(TextDecoration.State.FALSE)));
             }
 
             return MiniMessage.miniMessage().deserialize(serializedMessage, tagContext)

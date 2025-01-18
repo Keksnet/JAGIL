@@ -27,7 +27,7 @@ dependencies {
 }
 
 group = "de.neo8.jagil"
-version = "4.0-beta.36"
+version = "4.0-beta.37"
 description = "JAGIL"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
