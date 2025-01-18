@@ -1,9 +1,6 @@
 package de.neo8.jagil.reader;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import de.neo8.jagil.JAGIL;
 import de.neo8.jagil.exception.JAGILException;
 import de.neo8.jagil.gui.inventory.InventoryGuiTypes;
@@ -61,11 +58,7 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         }
 
         dataGui.messageFormat = ParseUtil.getMessageFormat(json, "messageFormat");
-        dataGui.features = json.get("features").getAsJsonArray().asList()
-                .stream()
-                .filter(JsonElement::isJsonPrimitive)
-                .map(JsonElement::getAsString)
-                .toList();
+        dataGui.features = getRequiredFeaturesList(json);
         dataGui.name = getAsComponent(json.get("name"));
         dataGui.size = json.get("size").getAsInt();
         dataGui.animationTick = ParseUtil.getJsonInt(json, "animationTick");
@@ -177,7 +170,9 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
                 if (JAGIL.getGlobalJAGILConfig().getSupportedFeatures().contains("head-database-api")) {
                     Pattern hdbTextureIdRegex = Pattern.compile("^(\\w+)@hdb$");
                     Matcher hdbMatcher = hdbTextureIdRegex.matcher(item.texture);
-                    item.texture = HdbProvider.getHeadDatabaseAPI().getBase64(hdbMatcher.group(1));
+                    if (hdbMatcher.matches()) {
+                        item.texture = HdbProvider.getHeadDatabaseAPI().getBase64(hdbMatcher.group(1));
+                    }
                 } else {
                     JAGIL.getLogger().warning("HeadDatabase support is either disabled or not available. GuiFile uses <id>@hdb despite this.");
                 }
@@ -304,6 +299,24 @@ public class JsonGuiReader implements GuiReader<JsonObject> {
         }
 
         return serializer.deserialize(jsonElement.getAsString());
+    }
+
+    @NotNull
+    private List<String> getRequiredFeaturesList(JsonObject json) {
+        JsonElement jsonFeaturesElement = json.get("features");
+        if (jsonFeaturesElement == null) {
+            return List.of();
+        }
+
+        if (!jsonFeaturesElement.isJsonArray()) {
+            return List.of();
+        }
+
+        return jsonFeaturesElement.getAsJsonArray().asList()
+                .stream()
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsString)
+                .toList();
     }
 
     public static class Provider implements GuiReaderProvider<JsonGuiReader> {
