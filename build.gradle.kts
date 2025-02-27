@@ -5,7 +5,6 @@
 plugins {
     `java-library`
     `maven-publish`
-    id("de.crazydev22.resources-ftp") version "1.1.0"
 }
 
 repositories {
@@ -27,7 +26,7 @@ dependencies {
 }
 
 group = "de.neo8.jagil"
-version = "4.0-beta.37"
+version = "4.0-beta.38"
 description = "JAGIL"
 java.sourceCompatibility = JavaVersion.VERSION_21
 

@@ -36,7 +36,7 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        InventoryHolder holder = event.getClickedInventory().getHolder();
+        InventoryHolder holder = event.getView().getTopInventory().getHolder();
         if (!(holder instanceof InventoryUserInterface inventoryGui)) {
             return;
         }
@@ -70,7 +70,7 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        InventoryHolder holder = event.getInventory().getHolder();
+        InventoryHolder holder = event.getView().getTopInventory().getHolder();
         if (!(holder instanceof InventoryUserInterface inventoryGui)) {
             return;
         }
@@ -102,7 +102,7 @@ public class InventoryListener implements Listener {
             return;
         }
 
-        InventoryHolder holder = event.getInventory().getHolder();
+        InventoryHolder holder = event.getView().getTopInventory().getHolder();
         if (!(holder instanceof InventoryUserInterface inventoryGui)) {
             return;
         }
