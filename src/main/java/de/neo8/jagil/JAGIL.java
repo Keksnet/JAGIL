@@ -1,16 +1,19 @@
 package de.neo8.jagil;
 
+import de.neo8.jagil.config.CachingConfig;
+import de.neo8.jagil.config.GlobalJAGILConfig;
 import de.neo8.jagil.listener.InventoryListener;
 import de.neo8.jagil.reader.GuiReaderManager;
 import de.neo8.jagil.reader.JsonGuiReader;
 import de.neo8.jagil.reader.XmlGuiReader;
-import de.neo8.jagil.util.GlobalJAGILConfig;
 import io.papermc.paper.plugin.configuration.PluginMeta;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -28,9 +31,14 @@ public class JAGIL {
 
     static {
         globalJAGILConfig = GlobalJAGILConfig.builder()
-                .loaderName("none")
-                .debugMode(false)
-                .build();
+                                             .loaderName("none")
+                                             .debugMode(false)
+                                             .supportedFeatures(List.of())
+                                             .cachingConfig(CachingConfig.builder()
+                                                                         .enabled(true)
+                                                                         .providerConfig(Map.of())
+                                                                         .build())
+                                             .build();
 
         GuiReaderManager.getInstance().register(JsonGuiReader.Provider.getInstance());
         GuiReaderManager.getInstance().register(XmlGuiReader.Provider.getInstance());

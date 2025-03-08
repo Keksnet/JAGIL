@@ -2,6 +2,10 @@ package de.neo8.jagil.util;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
+import de.neo8.jagil.JAGIL;
+import de.neo8.jagil.cache.CacheProvider;
+import de.neo8.jagil.cache.h2.TextureCacheH2Impl;
+import de.neo8.jagil.exception.JAGILException;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -122,9 +126,39 @@ public class ItemTool {
      * @return the new {@link ItemStack}
      */
     public static ItemStack createSkull(Component name, int amount, OfflinePlayer skullOwner) {
+        boolean cachingEnabled = JAGIL.getGlobalJAGILConfig().getCachingConfig().isEnabled();
+
         ItemStack is = createItem(name, amount, Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) is.getItemMeta();
-        meta.setOwningPlayer(skullOwner);
+
+        PlayerProfile profile = skullOwner.getPlayerProfile();
+        if (!profile.isComplete()) {
+            if (!cachingEnabled || !CacheProvider.getInstance().getTextureCache().isTextureCached(skullOwner.getUniqueId())) {
+                if (!profile.complete(true, true)) {
+                    meta.setOwningPlayer(skullOwner);
+                }
+            } else {
+                ProfileProperty texture = CacheProvider.getInstance().getTextureCache().getCachedTextureAsProperty(skullOwner.getUniqueId());
+                if (texture == null) {
+                    throw new JAGILException("texture should have been cached!");
+                }
+
+                profile.setProperty(texture);
+            }
+        }
+
+        if (cachingEnabled && profile.isComplete()) {
+            ProfileProperty texture = profile.getProperties()
+                                             .stream()
+                                             .filter(x -> x.getName().equalsIgnoreCase("textures"))
+                                             .findFirst()
+                                             .orElse(null);
+            if (texture != null) {
+                CacheProvider.getInstance().getTextureCache().updateCache(skullOwner.getUniqueId(), texture.getValue(), texture.getSignature());
+            }
+        }
+
+        meta.setPlayerProfile(profile);
         is.setItemMeta(meta);
         return is;
     }

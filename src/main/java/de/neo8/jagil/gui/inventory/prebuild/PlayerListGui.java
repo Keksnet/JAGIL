@@ -57,6 +57,7 @@ public class PlayerListGui extends InventoryGui {
 
                         Component skullName = this.playerNameFormat.replaceText((builder) ->
                                 builder.matchLiteral("%player%").replacement(offlinePlayer.getName()));
+
                         item = ItemTool.createSkull(skullName, offlinePlayer);
                         j++;
                     } else {
