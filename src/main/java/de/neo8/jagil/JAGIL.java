@@ -10,6 +10,7 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public class JAGIL {
     @Getter
     @Setter
     private static GlobalJAGILConfig globalJAGILConfig;
+
+    @Getter
+    private final static NamespacedKey jagilIdentifier = new NamespacedKey("jagil", "identifier");
 
     static {
         globalJAGILConfig = GlobalJAGILConfig.builder()

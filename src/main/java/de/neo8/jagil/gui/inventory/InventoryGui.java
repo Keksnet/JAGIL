@@ -4,6 +4,7 @@ import de.neo8.jagil.JAGIL;
 import de.neo8.jagil.annotation.Internal;
 import de.neo8.jagil.annotation.OptionalImplementation;
 import de.neo8.jagil.annotation.UserInterfaceByFile;
+import de.neo8.jagil.event.JagilInventoryClickEvent;
 import de.neo8.jagil.exception.JAGILException;
 import de.neo8.jagil.gui.UserInterfaceContextHolder;
 import de.neo8.jagil.reader.GuiReaderManager;
@@ -387,8 +388,9 @@ public class InventoryGui implements InventoryUserInterface, AnimatedInventory {
     @Override
     @Internal
     public final boolean handleInternal(InventoryClickEvent e) {
+        JagilInventoryClickEvent jagilEvent = new JagilInventoryClickEvent(e, this);
         if (System.currentTimeMillis() - this.lastInteraction <= this.interactionCooldown) {
-            this.handleBlocked(e);
+            this.handleBlocked(jagilEvent);
             return this.isCancelledByDefault();
         }
 
@@ -400,33 +402,67 @@ public class InventoryGui implements InventoryUserInterface, AnimatedInventory {
             component.click(click);
         }
 
+        return this.handleClick(jagilEvent);
+    }
+
+    /**
+     * Called on an {@link InventoryClickEvent} in this {@link Inventory}.
+     * If you override this method, you may call super to pass the event down to {@link #handle(InventoryClickEvent)}.
+     *
+     * @param e the fired {@link InventoryClickEvent}
+     * @return if the event should be cancelled or not.
+     */
+    public boolean handleClick(JagilInventoryClickEvent e) {
         return this.handle(e);
+    }
+
+    /**
+     * Like {@link InventoryGui#handleClick(JagilInventoryClickEvent)} but optional and one tick later.
+     *
+     * @param e the fired {@link InventoryClickEvent}
+     */
+    @OptionalImplementation
+    public void handleClickLast(JagilInventoryClickEvent e) {
     }
 
     /**
      * Called on an {@link InventoryClickEvent} in this {@link Inventory}.
      * If you override this method you should not call super.
+     * Even though this method is deprecated there are no plans to remove it in the near future.
      *
+     * @deprecated in favor of {@link #handleClick(JagilInventoryClickEvent)}
      * @param e the fired {@link InventoryClickEvent}
      * @return if the event should be cancelled or not.
      */
-    @Override
+    @Deprecated
     public boolean handle(InventoryClickEvent e) {
         return this.isCancelledByDefault();
     }
 
     /**
      * Like {@link InventoryGui#handle(InventoryClickEvent)} but optional and one tick later.
+     * If you override this method, you may call super to pass the event down to {@link #handleClickLast(JagilInventoryClickEvent)}.
      *
+     * @deprecated in favor of {@link #handleClickLast(JagilInventoryClickEvent)}
      * @param e the fired {@link InventoryClickEvent}
      */
     @Override
+    @Deprecated
     @OptionalImplementation
     public void handleLast(InventoryClickEvent e) {
+        JagilInventoryClickEvent jagilEvent;
+        if (e instanceof JagilInventoryClickEvent event) {
+            jagilEvent = event;
+        } else {
+            jagilEvent = new JagilInventoryClickEvent(e, this);
+        }
+
+        this.handleClickLast(jagilEvent);
     }
 
     /**
      * Called when the cooldown is not yet over but the {@link InventoryClickEvent} is fired.
+     * This method will most likely be called using an instance of {@link JagilInventoryClickEvent}.
      *
      * @param e the fired {@link InventoryClickEvent}
      */
@@ -450,7 +486,7 @@ public class InventoryGui implements InventoryUserInterface, AnimatedInventory {
     /**
      * Like {@link InventoryGui#handleDrag(InventoryDragEvent)} but optional and one tick later.
      *
-     * @param e the fired {@link InventoryClickEvent}
+     * @param e the fired {@link InventoryDragEvent}
      */
     @Override
     @OptionalImplementation
@@ -458,9 +494,9 @@ public class InventoryGui implements InventoryUserInterface, AnimatedInventory {
     }
 
     /**
-     * Like {@link InventoryGui#handleDrag(InventoryDragEvent)} but optional and one tick later.
+     * Called when an {@link InventoryCloseEvent} is received by this inventory.
      *
-     * @param e the fired {@link InventoryClickEvent}
+     * @param e the fired {@link InventoryCloseEvent}
      */
     @Override
     @OptionalImplementation

@@ -6,6 +6,7 @@ import de.neo8.jagil.ui.UISystem;
 import de.neo8.jagil.ui.components.Clickable;
 import de.neo8.jagil.ui.components.UIComponent;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.Comparator;
@@ -19,6 +20,7 @@ public class InventoryUiSystem implements UISystem<InventoryGuiTypes.DataGui> {
     private final HashMap<String, UIComponent> components;
 
     @Getter
+    @NotNull
     private final UIRenderPaneProvider<InventoryGuiTypes.DataGui> renderProvider;
 
     public InventoryUiSystem(int size) {
@@ -33,12 +35,12 @@ public class InventoryUiSystem implements UISystem<InventoryGuiTypes.DataGui> {
     }
 
     @Override
-    public boolean hasComponent(String id) {
+    public boolean hasComponent(@NotNull String id) {
         return this.components.containsKey(id);
     }
 
     @Override
-    public void addComponent(UIComponent component) throws IllegalArgumentException {
+    public void addComponent(@NotNull UIComponent component) throws IllegalArgumentException {
         String id = component.getId();
         if (this.components.containsKey(id))
             throw new IllegalArgumentException("Component with id '" + id + "' already exists");
@@ -46,12 +48,12 @@ public class InventoryUiSystem implements UISystem<InventoryGuiTypes.DataGui> {
     }
 
     @Override
-    public UIComponent getComponent(String id) {
+    public UIComponent getComponent(@NotNull String id) {
         return this.components.get(id);
     }
 
     @Override
-    public <T extends UIComponent & Clickable> T getClickedComponent(Point click) {
+    public <T extends UIComponent & Clickable> T getClickedComponent(@NotNull Point click) {
         AtomicReference<T> result = new AtomicReference<>();
         this.components.values()
                 .stream()
@@ -64,7 +66,7 @@ public class InventoryUiSystem implements UISystem<InventoryGuiTypes.DataGui> {
     }
 
     @Override
-    public void removeComponent(UIComponent component) {
+    public void removeComponent(@NotNull UIComponent component) {
         this.components.remove(component.getId());
     }
 
@@ -74,7 +76,7 @@ public class InventoryUiSystem implements UISystem<InventoryGuiTypes.DataGui> {
     }
 
     @Override
-    public void render(UIRenderPaneProvider<?> renderPaneProvider) {
+    public void render(@NotNull UIRenderPaneProvider<?> renderPaneProvider) {
         this.components.values()
                 .stream()
                 .sorted(Comparator.comparingInt(UIComponent::getPriority).reversed())

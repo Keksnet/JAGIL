@@ -10,6 +10,7 @@ import de.neo8.jagil.ui.impl.UIAction;
 import de.neo8.jagil.util.InventoryPositionUtil;
 import de.neo8.jagil.util.ParseUtil;
 import org.bukkit.Material;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
@@ -47,22 +48,22 @@ public class Button implements UIComponent, Clickable, JsonParsable {
     }
 
     @Override
-    public String getId() {
+    public @NotNull String getId() {
         return id;
     }
 
     @Override
-    public Point getPosition() {
+    public @NotNull Point getPosition() {
         return position;
     }
 
     @Override
-    public Dimension getSize() {
+    public @NotNull Dimension getSize() {
         return size;
     }
 
     @Override
-    public Rectangle getBounds() {
+    public @NotNull Rectangle getBounds() {
         return bounds;
     }
 
@@ -72,7 +73,7 @@ public class Button implements UIComponent, Clickable, JsonParsable {
     }
 
     @Override
-    public void render(UIRenderPaneProvider<?> renderPlainProvider) {
+    public void render(@NotNull UIRenderPaneProvider<?> renderPlainProvider) {
         Object renderPlain = renderPlainProvider.getRenderPane();
         if (renderPlain instanceof InventoryGuiTypes.DataGui gui) {
             boolean renderBorder = size.width >= 3 && size.height >= 3 && border;
@@ -83,8 +84,7 @@ public class Button implements UIComponent, Clickable, JsonParsable {
             for (int i = 0; i < size.height; i++) {
                 for (int j = 0; j < size.width; j++) {
                     InventoryGuiTypes.GuiItem copy = new InventoryGuiTypes.GuiItem(innerItem);
-                    int slot = InventoryPositionUtil.toSlot(j, i);
-                    copy.slot = slot;
+                    copy.slot = InventoryPositionUtil.toSlot(j, i);
                     if (copy.id == null) {
                         copy.id = "gen-slot-" + copy.slot;
                         copy.generatedId = true;
@@ -103,7 +103,7 @@ public class Button implements UIComponent, Clickable, JsonParsable {
     }
 
     @Override
-    public void click(UIAction<?> click) {
+    public void click(@NotNull UIAction<?> click) {
         click.entity().sendMessage("Button clicked!");
     }
 }

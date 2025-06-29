@@ -1,11 +1,12 @@
 package de.neo8.jagil.gui.inventory;
 
 import com.google.gson.JsonElement;
-import de.neo8.jagil.JAGIL;
 import de.neo8.jagil.ui.components.UIComponent;
 import de.neo8.jagil.util.InventoryPosition;
 import de.neo8.jagil.util.ItemBuilder;
 import de.neo8.jagil.util.Pair;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -138,6 +139,14 @@ public class InventoryGuiTypes {
             return this.items.get(itemId);
         }
 
+        /**
+         * Adds an item to this
+         * @param item item to add
+         */
+        public void addItem(GuiItem item) {
+            this.items.put(item.id, item);
+        }
+
         @Override
         public String toString() {
             return "DataGui{name=" + this.name + ", " +
@@ -146,6 +155,8 @@ public class InventoryGuiTypes {
         }
     }
 
+    @Builder
+    @AllArgsConstructor
     public static class GuiItem implements Comparable<GuiItem> {
 
         public String id;

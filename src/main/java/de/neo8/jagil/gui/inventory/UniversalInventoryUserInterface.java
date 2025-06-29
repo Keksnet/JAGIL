@@ -48,14 +48,14 @@ public interface UniversalInventoryUserInterface extends UniversalUserInterface,
     /**
      * Like {@link #handleDrag(InventoryDragEvent)} but optional and one tick later.
      *
-     * @param event the fired {@link InventoryClickEvent}
+     * @param event the fired {@link InventoryDragEvent}
      */
     void handleDragLast(InventoryDragEvent event);
 
     /**
-     * Like {@link InventoryGui#handleDrag(InventoryDragEvent)} but optional and one tick later.
+     * Called when an {@link InventoryCloseEvent} is received by this inventory.
      *
-     * @param event the fired {@link InventoryClickEvent}
+     * @param event the fired {@link InventoryCloseEvent}
      */
     void handleClose(InventoryCloseEvent event);
 
